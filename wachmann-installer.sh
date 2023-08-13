@@ -200,7 +200,7 @@ while [ "$choice" -eq 2 ]; do
     if [ $choice -eq 113 ] ; then
         echo "Enter what commands not to be logged:"
         echo "(Optional.)"
-        echo "(Sepperated by a commata ',')"
+        echo "(Sepperat the commands with a ',')"
         read -r externalcommands
         if [ ! "$externalcommands" ] || [ "$externalcommands" = "" ]; then
             externalcommands=""
