@@ -1,0 +1,39 @@
+{
+  "name": "wachmannjs",
+  "version": "2.0.0",
+  "description": "Wachmann of Pony Events",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "lint": "eslint main.js src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TamaniWolf/WachmannJS.git"
+  },
+  "author": {
+    "name": "Tamani Wolf - Eternal Clan",
+    "url": "https://github.com/TamaniWolf/"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TamaniWolf/WachmannJS/issues"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "packageManager": "pnpm@8.6.2",
+  "homepage": "https://github.com/TamaniWolf/WachmannJS#readme",
+  "dependencies": {
+    "better-sqlite3": "^8.4.0",
+    "discord.js": "^14.11.0",
+    "dotenv": "^16.3.0",
+    "glob": "^10.2.6",
+    "luxon": "^3.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.9.0",
+    "eslint": "^8.47.0",
+    "nodemon": "^3.0.1"
+  }
+}
