@@ -30,6 +30,8 @@ serverowner=""
 botmaster=""
 botmasterrole=""
 wachmannid=""
+saniid=""
+canniid=""
 botchannel=""
 logchannel=""
 logcommands=""
@@ -146,64 +148,62 @@ while [ "$choice" -eq 2 ]; do
         fi
     fi
     if [ $choice -eq 109 ] ; then
-        echo "Enter the Bot Channel:"
-        read -r botchannel
-        if [ ! "$botchannel" ] || [ "$botchannel" = "" ]; then
-            echo "Hey you need this!"
+        echo "Enter Sani's ID:"
+        read -r saniid
+        if [ ! "$saniid" ] || [ "$saniid" = "" ]; then
+            saniid="0"
+            echo "Set to the default = 0"
             echo ""
-            choice=109
+            choice=110
         else
             echo ""
             choice=110
         fi
     fi
     if [ $choice -eq 110 ] ; then
-        echo "Enter the loggin Channel:"
-        read -r logchannel
-        if [ ! "$logchannel" ] || [ "$logchannel" = "" ]; then
-            echo "Hey you need this!"
+        echo "Enter Canni's ID:"
+        read -r canniid
+        if [ ! "$canniid" ] || [ "$canniid" = "" ]; then
+            canniid="0"
+            echo "Set to the default = 0"
             echo ""
-            choice=110
+            choice=111
         else
             echo ""
             choice=111
         fi
     fi
     if [ $choice -eq 111 ] ; then
-        echo "Toggle Command loggin:"
-        echo "(Optional. false = OFF | true = ON)"
-        read -r logcommands
-        if [ ! "$logcommands" ] || [ "$logcommands" = "" ]; then
-            logcommands="false"
-            echo "Set to the default = false"
+        echo "Enter the Bot Channel:"
+        read -r botchannel
+        if [ ! "$botchannel" ] || [ "$botchannel" = "" ]; then
+            echo "Hey you need this!"
             echo ""
-            choice=112
+            choice=111
         else
             echo ""
             choice=112
         fi
     fi
     if [ $choice -eq 112 ] ; then
-        echo "Toggle Bot loggin:"
-        echo "(Optional. false = OFF | true = ON)"
-        read -r logbots
-        if [ ! "$logbots" ] || [ "$logbots" = "" ]; then
-            logbots="false"
-            echo "Set to the default = false"
+        echo "Enter the loggin Channel:"
+        read -r logchannel
+        if [ ! "$logchannel" ] || [ "$logchannel" = "" ]; then
+            echo "Hey you need this!"
             echo ""
-            choice=113
+            choice=112
         else
             echo ""
             choice=113
         fi
     fi
     if [ $choice -eq 113 ] ; then
-        echo "Enter what commands not to be logged:"
-        echo "(Optional.)"
-        echo "(Sepperat the commands with a ',')"
-        read -r externalcommands
-        if [ ! "$externalcommands" ] || [ "$externalcommands" = "" ]; then
-            externalcommands=""
+        echo "Toggle Command loggin:"
+        echo "(Optional. false = OFF | true = ON)"
+        read -r logcommands
+        if [ ! "$logcommands" ] || [ "$logcommands" = "" ]; then
+            logcommands="false"
+            echo "Set to the default = false"
             echo ""
             choice=114
         else
@@ -212,13 +212,12 @@ while [ "$choice" -eq 2 ]; do
         fi
     fi
     if [ $choice -eq 114 ] ; then
-        echo "Toggle What commands to be Enabled:"
-        echo "(Optional.)"
-        echo "(Sepperated by a commata ',')"
-        read -r enablecommands
-        if [ ! "$enablecommands" ] || [ "$enablecommands" = "" ]; then
-            enablecommands="help,info,ping,sleep,clear"
-            echo "Set to the default = help,info,ping,sleep,clear"
+        echo "Toggle Bot loggin:"
+        echo "(Optional. false = OFF | true = ON)"
+        read -r logbots
+        if [ ! "$logbots" ] || [ "$logbots" = "" ]; then
+            logbots="false"
+            echo "Set to the default = false"
             echo ""
             choice=115
         else
@@ -227,13 +226,12 @@ while [ "$choice" -eq 2 ]; do
         fi
     fi
     if [ $choice -eq 115 ] ; then
-        echo "Toggle What modules to be Enabled:"
+        echo "Enter what commands not to be logged:"
         echo "(Optional.)"
-        echo "(Sepperated by a commata ',')"
-        read -r enablemodules
-        if [ ! "$enablemodules" ] || [ "$enablemodules" = "" ]; then
-            enablemodules="logs"
-            echo "Set to the default = logs"
+        echo "(Sepperat the commands with a ',')"
+        read -r externalcommands
+        if [ ! "$externalcommands" ] || [ "$externalcommands" = "" ]; then
+            externalcommands=""
             echo ""
             choice=116
         else
@@ -242,6 +240,36 @@ while [ "$choice" -eq 2 ]; do
         fi
     fi
     if [ $choice -eq 116 ] ; then
+        echo "Toggle What commands to be Enabled:"
+        echo "(Optional.)"
+        echo "(Sepperated by a commata ',')"
+        read -r enablecommands
+        if [ ! "$enablecommands" ] || [ "$enablecommands" = "" ]; then
+            enablecommands="help,info,ping,sleep,clear"
+            echo "Set to the default = help,info,ping,sleep,clear"
+            echo ""
+            choice=117
+        else
+            echo ""
+            choice=117
+        fi
+    fi
+    if [ $choice -eq 117 ] ; then
+        echo "Toggle What modules to be Enabled:"
+        echo "(Optional.)"
+        echo "(Sepperated by a commata ',')"
+        read -r enablemodules
+        if [ ! "$enablemodules" ] || [ "$enablemodules" = "" ]; then
+            enablemodules="logs"
+            echo "Set to the default = logs"
+            echo ""
+            choice=118
+        else
+            echo ""
+            choice=118
+        fi
+    fi
+    if [ $choice -eq 118 ] ; then
         echo ".env file:"
         echo "''"
         envfile=".env"
@@ -257,6 +285,9 @@ while [ "$choice" -eq 2 ]; do
         echo "BOT_MASTER_ROLE = $botmasterole" >> $envfile
         echo "" >> $envfile
         echo "WACHMANN_ID = $wachmannid" >> $envfile
+        echo "SANI_ID = $saniid" >> $envfile
+        echo "CANNI_ID = $canniid" >> $envfile
+        echo "" >> $envfile
         echo "BOT_CHANNEL = $botchannel" >> $envfile
         echo "LOG_CHANNEL = $logchannel" >> $envfile
         echo "LOG_COMMANDS = $logcommands" >> $envfile
@@ -266,11 +297,11 @@ while [ "$choice" -eq 2 ]; do
         echo "ENABLE_COMMANDS = $enablecommands" >> $envfile
         echo "ENABLE_MODULES = $enablemodules" >> $envfile
         echo "" >> $envfile
+        choice=3
     fi
     echo ""
     echo ""
     echo ""
-    choice=3
     if [ $choice -eq 3 ] ; then
         echo "Please check if all information is correct before you procced!"
         echo ""
@@ -291,6 +322,7 @@ while [ "$choice" -eq 2 ]; do
         echo ""
         echo ""
     fi
+    choice=0
 
 done
 echo "Setup is completed."

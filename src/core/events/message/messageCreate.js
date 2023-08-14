@@ -1,5 +1,5 @@
 
-// Require discord.js, fs, Luxon.
+// Require.
 const { Events, Message, Collection } = require('discord.js');
 // Require dotenv as config (.env).
 require('dotenv').config();
@@ -10,6 +10,13 @@ module.exports = {
      * @param {Message} message
      */
     async execute(message) {
+
+        const canni = process.env.CANNI_ID;
+        const sani = process.env.SANI_ID;
+        const { Canni, Sani } = require('../../../modules/interBotCom/interBotCom.js');
+        if (message.author.id === canni) Canni.Response(message, canni, sani);
+        if (message.author.id === sani) Sani.Response(message, canni, sani);
+
         // Check for Bot.
         if (!message.author || message.author.bot) {
             return;
