@@ -25,7 +25,7 @@ module.exports = {
                         callback(data);
                     });
                 }
-                read('data/Text/help.txt', function(data) {
+                read('data/text/help.txt', function(data) {
                     let a = data.replace('%s',`<@${message.author.id}>`)
                     message.reply(a);
                 });
