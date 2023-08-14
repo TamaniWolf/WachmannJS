@@ -1,5 +1,5 @@
-
-const { Application } = require(`./src/core/application/Application.js`);
+/* eslint-disable no-console */
+const { Application } = require("./src/core/application/Application.js");
 
 // Application Start
 Application.init();

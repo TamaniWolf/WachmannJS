@@ -1,6 +1,6 @@
 {
   "name": "wachmannjs",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Wachmann of Pony Events",
   "main": "main.js",
   "private": true,
