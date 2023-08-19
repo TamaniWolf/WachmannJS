@@ -7,9 +7,15 @@ class DevCheck {
 		return new Promise((resolve, reject) => {
 			try {
 				let master;
-				const msgAuthor = message.author.id;
-				const serverOwnerList = process.env.SERVER_OWNER.split(/,+/g);
-				const botMasterList = process.env.BOT_MASTER.split(/,+/g);
+				let msgAuthor;
+				let serverOwnerList;
+				let botMasterList;
+				if (!process.env.SERVER_OWNER) serverOwnerList = [""];
+				if (!process.env.BOT_MASTER) botMasterList = [""];
+				if (!message.author) msgAuthor = [""];
+				if (message.author) msgAuthor = message.author.id;
+				if (process.env.SERVER_OWNER) serverOwnerList = process.env.SERVER_OWNER.split(/,+/g);
+				if (process.env.BOT_MASTER) botMasterList = process.env.BOT_MASTER.split(/,+/g);
 				const serverOwnerArray = serverOwnerList.map(obj => {
 					return obj.trim();
 				});
@@ -61,6 +67,7 @@ class DevCheck {
 					channel = true;
 				}
 				const isChannel = channel;
+				// if (firstChannel !== process.env.SERVER_ID) return;
 				resolve(isChannel || false);
 			} catch(err) {
 				reject(err);
@@ -69,19 +76,44 @@ class DevCheck {
 	}
 	// Log Channel
 	static LogChannel() {
-		return new Promise((resolve, reject) => {
+		return new Promise(async (resolve, reject) => {
 			try {
+				// eslint-disable-next-line no-undef
 				const logChannelList = process.env.BOT_CHANNEL.split(/,+/g);
 				const logChannelArray = logChannelList.map(obj => {
 					return obj.trim();
 				});
-				const firstChannel = logChannelArray[0].toString();
-				resolve(firstChannel || false);
+				const list = logChannelArray[0].toString();
+				resolve(list || "0");
 			} catch(err) {
 				reject(err);
 			}
 		});
 	}
+	// Server
+	// static IsServer(guildId) {
+	// 	return new Promise((resolve, reject) => {
+	// 		try {
+	// 			let server;
+	// 			let serverList;
+	// 			if (!process.env.SERVER_ID) serverList = [""];
+	// 			// if (guildId !== process.env.SERVER_ID) return;
+
+	// 			if (process.env.SERVER_ID) serverList = process.env.SERVER_ID.split(/,+/g);
+	// 			const serverListArray = serverList.map(obj => {
+	// 				return obj.trim();
+	// 			});
+	// 			const serverId = serverListArray.filter(obj => obj === guildId).toString();
+	// 			if (guildId === serverId) {
+	// 				server = serverId;
+	// 			}
+	// 			const isServer = server;
+	// 			resolve(isServer || false);
+	// 		} catch (err) {
+	// 			reject(err);
+	// 		}
+	// 	});
+	// }
 }
 
 module.exports.DevCheck = DevCheck;

@@ -13,6 +13,7 @@ module.exports = {
 		// SQLite
 		const { Get, Set, Del } = require("../../tools/functions/sqlite/prepare");
 		// AuditLog Fetch
+		if (role.guild.id !== process.env.SERVER_ID) return;
 		const fetchedLogs = await role.guild.fetchAuditLogs({
 			limit: 1,
 			type: AuditLogEvent.RoleCreate

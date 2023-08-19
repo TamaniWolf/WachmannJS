@@ -8,6 +8,7 @@ module.exports = {
 	async execute(guildScheduledEvent) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel();
+		if (guildScheduledEvent.guildId !== process.env.SERVER_ID) return;
 		// Fetch Auditlog
 		const fetchedLogs = await guildScheduledEvent.guild.fetchAuditLogs({
 			limit: 1,

@@ -7,7 +7,7 @@ module.exports = {
 		// eslint-disable-next-line no-console
 		console.log(`The Bot left a server: ${guild.name}`);
 		["leave"].forEach(systemHandler =>{
-			require(`../../../modules/database/create/${systemHandler}.js`)(guild);
+			require(`../../../tools/database/create/${systemHandler}.js`)(guild);
 		});
 	}
 };

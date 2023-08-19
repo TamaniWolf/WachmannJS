@@ -8,6 +8,8 @@ module.exports = {
 	async execute(oldMessage, newMessage) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel();
+		if (oldMessage.guildId !== process.env.SERVER_ID) return;
+		if (newMessage.guildId !== process.env.SERVER_ID) return;
 		// Data Get
 		let mumid;
 		const getGuildIDOld = oldMessage.guildId;

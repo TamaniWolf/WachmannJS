@@ -8,6 +8,7 @@ module.exports = {
 	async execute(oldChannel, newChannel) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel();
+		if (newChannel.guild.id !== process.env.SERVER_ID) return;
 		const { DateTime } = require("luxon");
 		// SQLite
 		const { Get, Set, Del } = require("../../tools/functions/sqlite/prepare");

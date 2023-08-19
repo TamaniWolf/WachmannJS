@@ -8,6 +8,7 @@ module.exports = {
 	async execute(channel) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel();
+		if (channel.guild.id !== process.env.SERVER_ID) return;
 		// AuditLog Fetch
 		const FetchedLogs = await channel.guild.fetchAuditLogs({
 			limit: 1,

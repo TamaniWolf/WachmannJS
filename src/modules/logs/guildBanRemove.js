@@ -8,6 +8,7 @@ module.exports = {
 	async execute(ban) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel();
+		if (ban.guild.id !== process.env.SERVER_ID) return;
 		const fetchedLogs = await ban.guild.fetchAuditLogs({
 			limit: 1,
 			type: AuditLogEvent.MemberBanRemove

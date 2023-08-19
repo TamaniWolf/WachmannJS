@@ -8,6 +8,7 @@ module.exports = {
 	async execute(data) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel();
+		if (data.guildId !== process.env.SERVER_ID) return;
 		// ACPU
 		// eslint-disable-next-line no-undef
 		const guild = await globalclient.guilds.fetch(data.guildId);

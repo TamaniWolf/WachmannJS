@@ -9,6 +9,7 @@ module.exports = {
 	async execute(guild) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel();
+		if (guild.id !== process.env.SERVER_ID) return;
 		try {
 			// eslint-disable-next-line no-undef
 			const guilds = await globalclient.guilds.fetch(guild.id);
@@ -88,9 +89,9 @@ module.exports = {
 		} catch(err) {
 			let errData;
 			// eslint-disable-next-line no-undef
-			if (globalclient.servers.get(guild.id) && err.code === 50013) {errData = `${err}\n[Client] The Bot/Member is Missing the requiered Permission.`;}
+			if (globalclient.guilds.get(guild.id) && err.code === 50013) {errData = `${err}\n[Client] The Bot/Member is Missing the requiered Permission.`;}
 			// eslint-disable-next-line no-undef
-			if (!globalclient.servers.get(guild.id) && err.code === 50013) {errData = `${err}\n[Client] The Bot left the Server ${guild.name}.`;}
+			if (!globalclient.guilds.get(guild.id) && err.code === 50013) {errData = `${err}\n[Client] The Bot left the Server ${guild.name}.`;}
 			if (err.code !== 50013) {errData = err;}
 			// eslint-disable-next-line no-console
 			console.log(errData);

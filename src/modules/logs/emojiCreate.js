@@ -8,6 +8,7 @@ module.exports = {
 	async execute(emoji) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel();
+		if (emoji.guild.id !== process.env.SERVER_ID) return;
 		// SQLite
 		// eslint-disable-next-line no-undef
 		const guild = await globalclient.guilds.fetch(emoji.guild.id);

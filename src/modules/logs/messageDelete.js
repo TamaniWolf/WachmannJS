@@ -8,13 +8,14 @@ module.exports = {
 	call: "on", // client.once = 'once', client.on = 'on'
 	async execute(message) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
-		const logChannel = await DevCheck.LogChannel();
 		const { DateTime } = require("luxon");
 		// SQLite
 		const { Get, Set, Del } = require("../../tools/functions/sqlite/prepare");
 
 		// eslint-disable-next-line no-undef
 		const getGuildObj = await globalclient.guilds.fetch(message.guildId);
+		if (message.guildId !== process.env.SERVER_ID) return;
+		const logChannel = await DevCheck.LogChannel(message.guildId);
 		// Fetch AuditLog
 		const fetchedLogs = await getGuildObj.fetchAuditLogs({
 			limit: 1,

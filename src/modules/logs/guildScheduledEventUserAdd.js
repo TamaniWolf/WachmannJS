@@ -8,6 +8,7 @@ module.exports = {
 	async execute(guildScheduledEvent, user) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel();
+		if (guildScheduledEvent.guildId !== process.env.SERVER_ID) return;
 		// SQLite
 		let icon2 = user.avatarURL();
 		if(user.avatar == null) {

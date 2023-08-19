@@ -9,6 +9,7 @@ module.exports = {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel();
 		// SQLite
+		if (invite.guild.id !== process.env.SERVER_ID) return;
 		const fetchedLogs = await invite.guild.fetchAuditLogs({
 			limit: 1,
 			type: AuditLogEvent.InviteCreate

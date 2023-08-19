@@ -15,6 +15,7 @@ module.exports = {
 			return obj;
 		});
 		const getGuildID = msgs[0].guildId;
+		if (getGuildID !== process.env.SERVER_ID) return;
 		// eslint-disable-next-line no-undef
 		const guild = await globalclient.guilds.fetch(getGuildID);
 		const fetchedLogs = await guild.fetchAuditLogs({

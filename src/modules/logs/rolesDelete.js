@@ -14,6 +14,7 @@ module.exports = {
 		// AuditLog Fetch
 		// eslint-disable-next-line no-undef
 		if (role.tags.botId === globalclient.user.id) return;
+		if (role.guild.id !== process.env.SERVER_ID) return;
 		const fetchedLogs = await role.guild.fetchAuditLogs({
 			limit: 1,
 			type: AuditLogEvent.RoleDelete

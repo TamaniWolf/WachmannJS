@@ -8,6 +8,7 @@ module.exports = {
 	async execute(oldGuildScheduledEvent, newGuildScheduledEvent) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel();
+		if (newGuildScheduledEvent.guildId !== process.env.SERVER_ID) return;
 		// SQLite
 		const { DateTime } = require("luxon");
 		const { Get, Set, Del } = require("../../tools/functions/sqlite/prepare");

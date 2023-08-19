@@ -9,6 +9,7 @@ module.exports = {
      * @param {Message} message
      */
 	async execute(message) {
+		// console.log(message); return;
 
 		const canni = process.env.CANNI_ID;
 		const sani = process.env.SANI_ID;

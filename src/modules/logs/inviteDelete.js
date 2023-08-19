@@ -8,6 +8,7 @@ module.exports = {
 	async execute(invite) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel();
+		if (invite.guild.id !== process.env.SERVER_ID) return;
 		const fetchedLogs = await invite.guild.fetchAuditLogs({
 			limit: 1,
 			type: AuditLogEvent.InviteDelete

@@ -9,6 +9,7 @@ module.exports = {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel();
 		// AuditLog Fetch
+		if (newGuild.id !== process.env.SERVER_ID) return;
 		const fetchedLogs = await newGuild.fetchAuditLogs({
 			limit: 1,
 			type: AuditLogEvent.GuildUpdate
