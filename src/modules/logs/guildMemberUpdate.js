@@ -1,20 +1,22 @@
-/* eslint-disable no-inline-comments */
-const { EmbedBuilder, AuditLogEvent } = require("discord.js");
+const { EmbedBuilder, AuditLogEvent, Events } = require("discord.js");
 require("dotenv").config();
 module.exports = {
-	name: "guildMemberUpdate",
-	description: "Loggin bot's beeing added to the server.",
-	call: "on", // client.once = 'once', client.on = 'on'
+	name: Events.GuildMemberUpdate,
+	description: "Log edited Members.",
+	call: "on",
 	async execute(oldMember, newMember) {
-		const { DevCheck } = require("../../tools/functions/devCheck");
-		const logChannel = await DevCheck.LogChannel();
-		if (newMember.guild.id !== process.env.SERVER_ID) return;
-		// SQLite
 		const { DateTime } = require("luxon");
+		const { DevCheck } = require("../../tools/functions/devCheck");
+		const logChannel = await DevCheck.LogChannel(newMember.guild.id);
+		const { Application } = require("../../core/application/Application");
 		const { Get, Set, Del } = require("../../tools/functions/sqlite/prepare");
-		// Member Update
+
 		// eslint-disable-next-line no-undef
-		if (newMember.user.id === globalclient.user.id && typeof newMember._roles == "undefined" || newMember.user.id === globalclient.user.id && newMember._roles.length <= 0) return;
+		const getGuildObj = await globalclient.guilds.fetch(newMember.guild.id);
+		// const getMemberObj = await getGuildObj.members.fetch(newMember.user.id);
+		const memberID = `<@${newMember.user.id}>`;
+		await getGuildObj.roles.fetch();
+
 		try {
 			const memberUpdateFetchedLogs = await newMember.guild.fetchAuditLogs({
 				limit: 1,
@@ -26,165 +28,136 @@ module.exports = {
 				type: AuditLogEvent.MemberRoleUpdate
 			});
 			const memberRoleUpdateLog = memberRoleUpdateFetchedLogs.entries.first();
-			// Data Null
-			let dataAuditLogID;
-			// Context
-			if (memberUpdateLog == null) {
-				return;
+
+			let dataAuditLogIDMember;
+			let dataAuditLogIDRole;
+			let icon2 = "";
+			const getBotConfigID = `${getGuildObj.id}-${getGuildObj.shard.id}`;
+			let dataLang;
+			dataLang = Get.botConfig(getBotConfigID);
+			if (dataLang == null) dataLang = { Lang: "./data/lang/en_US.json" };
+			const lang = require(`../../.${dataLang.Lang}`);
+			const { LanguageConvert } = require("../../tools/functions/languageConvert");
+
+			if (memberUpdateLog != null) {
+				dataAuditLogIDMember = Get.auditLogs(memberUpdateLog.id);
 			}
-			if (memberRoleUpdateLog == null) {
-				return;
+			if (memberRoleUpdateLog != null) {
+				dataAuditLogIDRole = Get.auditLogs(memberRoleUpdateLog.id);
 			}
-			if (memberUpdateLog && memberRoleUpdateLog == null || memberUpdateLog && memberRoleUpdateLog) {
-				if (memberUpdateLog.createdTimestamp > memberRoleUpdateLog.createdTimestamp) {
-					if (memberUpdateLog != null) {
-						dataAuditLogID = Get.auditLogs(memberUpdateLog.id);
+
+			if (dataAuditLogIDMember == null || dataAuditLogIDMember.AuditLogID !== memberUpdateLog.id) {
+				// Member Update
+				const embedsMemberUpdate = new EmbedBuilder()
+					.setColor(Application.colors().logEmbedColor.update);
+				const { executor, changes, id, target } = memberUpdateLog;
+
+				const arrayOfKey = changes.map(function(obj) {
+					return obj.key;
+				});
+				const arrayOfOld = changes.map(function(obj) {
+					return obj.old;
+				});
+				const arrayOfNew = changes.map(function(obj) {
+					return obj.new;
+				});
+				const stringKey = arrayOfKey.toString();
+				const stringOld = arrayOfOld.toString();
+				const stringNew = arrayOfNew.toString();
+
+				if (stringKey === "nick") {
+					if (stringOld === "") embedsMemberUpdate.setDescription(LanguageConvert.lang(lang.logs.addnickto, stringNew, target));
+					if (stringNew === "") embedsMemberUpdate.setDescription(LanguageConvert.lang(lang.logs.removenickfrom, stringOld, target));
+					if (stringOld !== "" && stringNew !== "") {
+						embedsMemberUpdate.setDescription(LanguageConvert.lang(lang.logs.editnickof, target))
+							.addFields(
+								{ name: `${lang.logs.before}`, value: `\`${stringOld}\``, inline: true },
+								{ name: `${lang.logs.after}`, value: `\`${stringNew}\``, inline: true }
+							);
 					}
-					const { targetType, actionType, executor, changes, id, target } = memberUpdateLog;
-					const createdTimestampLog = memberUpdateLog.createdTimestamp;
-					const dt = DateTime.now().minus({ seconds: 5 });
-					const time = dt.toMillis();
-					if (dataAuditLogID != null && dataAuditLogID.AuditLogID === id) {
-						return;
-					} else if (time > createdTimestampLog) {
-						dataAuditLogID = { AuditLogID: `${id}`, GuildID: `${newMember.guild.id}`, Type: "Member_Update", Date: `${memberUpdateLog.createdTimestamp}` };
-						Set.auditLogs(dataAuditLogID);
-					} else {
-						dataAuditLogID = { AuditLogID: `${id}`, GuildID: `${newMember.guild.id}`, Type: "Member_Update", Date: `${memberUpdateLog.createdTimestamp}` };
-						Set.auditLogs(dataAuditLogID);
-					}
-					if(targetType === "User" && actionType === "Update") {
-						const arrayOfKey = changes.map(function(obj) {
-							return obj.key;
-						});
-						const arrayOfOld = changes.map(function(obj) {
-							return obj.old;
-						});
-						const arrayOfNew = changes.map(function(obj) {
-							return obj.new;
-						});
-						const stringKey = arrayOfKey.toString();
-						const stringOld = arrayOfOld.toString();
-						const stringNew = arrayOfNew.toString();
-						let icon2 = executor.avatarURL();
-						if(executor.avatar == null) {
-							icon2 = "attachment://discord_logo_gray.png";
-						}
-						const embedsMemberUpdate = new EmbedBuilder();
-						if(stringKey === "nick") {
-							if(executor.id === target.id) {
-								embedsMemberUpdate.setColor("Blue");
-								if(stringOld === "") {
-									embedsMemberUpdate.setDescription(`${executor} added they Nickname \`${stringNew}\``);
-								} else if(stringNew === "") {
-									embedsMemberUpdate.setDescription(`${executor} removed they Nickname \`${stringOld}\``);
-								} else {
-									embedsMemberUpdate.setDescription(`${executor} changed they Nickname \`${stringOld}\` to \`${stringNew}\``);
-								}
-							} else {
-								embedsMemberUpdate.setColor("Yellow");
-								if(stringOld === "") {
-									embedsMemberUpdate.setDescription(`${executor} added the Nickname \`${stringNew}\` to ${target}`);
-								} else if(stringNew === "") {
-									embedsMemberUpdate.setDescription(`${executor} removed the Nickname \`${stringOld}\` from ${target}`);
-								} else {
-									embedsMemberUpdate.setDescription(`${executor} changed the Nickname of ${target} from \`${stringOld}\` to \`${stringNew}\``);
-								}
-							}
-							embedsMemberUpdate.setAuthor({ name: `${executor.tag}`, iconURL: `${icon2}` })
-								.setFooter({ text: `MemberID: ${target.id}` })
-								.setTimestamp(new Date());
-							// eslint-disable-next-line no-undef
-							globalclient.channels.cache.get(logChannel).send({ embeds: [embedsMemberUpdate] });
-						}
-					}
+					dataAuditLogIDMember = { AuditLogID: `${id}`, GuildID: `${newMember.guild.id}`, Type: "Member_Update", Date: `${memberRoleUpdateLog.createdTimestamp}` };
 				}
+
+				icon2 = executor.avatarURL();
+				if (executor.avatar == null) icon2 = "https://i.imgur.com/CN6k8gB.png";
+				embedsMemberUpdate.setAuthor({ name: `${executor.tag} (ID: ${executor.id})`, iconURL: icon2 })
+					.setTimestamp(new Date());
+				// eslint-disable-next-line no-undef
+				globalclient.channels.cache.get(logChannel).send({ embeds: [embedsMemberUpdate] });
+				Set.auditLogs(dataAuditLogIDMember);
 			}
-			if (memberRoleUpdateLog && memberUpdateLog == null || memberRoleUpdateLog && memberUpdateLog) {
-				if (memberRoleUpdateLog.createdTimestamp > memberUpdateLog.createdTimestamp) {
-					if (memberRoleUpdateLog != null) {
-						dataAuditLogID = Get.auditLogs(memberRoleUpdateLog.id);
-					}
-					const { targetType, actionType, executor, changes, id, target } = memberRoleUpdateLog;
-					const createdTimestampLog = memberRoleUpdateLog.createdTimestamp;
-					const dt = DateTime.now().minus({ seconds: 5 });
-					const time = dt.toMillis();
-					if (dataAuditLogID != null && dataAuditLogID.AuditLogID === id) {
-						return;
-					} else if (time > createdTimestampLog) {
-						dataAuditLogID = { AuditLogID: `${id}`, GuildID: `${newMember.guild.id}`, Type: "Member_Update", Date: `${memberRoleUpdateLog.createdTimestamp}` };
-						Set.auditLogs(dataAuditLogID);
-					} else {
-						dataAuditLogID = { AuditLogID: `${id}`, GuildID: `${newMember.guild.id}`, Type: "Member_Update", Date: `${memberRoleUpdateLog.createdTimestamp}` };
-						Set.auditLogs(dataAuditLogID);
-					}
-					if(targetType === "User" && actionType === "Update") {
-						const arrayOfKey = changes.map(function(obj) {
-							return obj.key;
-						});
-						const arrayOfNewName = changes.map(function(obj) {
-							return obj.new.map(function(obj) {
-								return obj.name;
-							});
-						});
-						const stringKey = arrayOfKey.toString();
-						const stringNewName = arrayOfNewName.toString();
-						const embedsMemberUpdate = new EmbedBuilder();
-						if (executor == null) {
-							const icon2 = "attachment://discord_logo_gray.png";
-							embedsMemberUpdate.setColor("Yellow");
-							embedsMemberUpdate.setDescription(`${target} was given the \`${stringNewName}\` role by \`Intergration\`.`);
-							embedsMemberUpdate.setAuthor({ name: "Intergration", iconURL: `${icon2}` })
-								.setFooter({ text: `MemberID: ${target.id}` })
-								.setTimestamp(new Date());
-							// eslint-disable-next-line no-undef
-							globalclient.channels.cache.get(logChannel).send({ embeds: [embedsMemberUpdate] });
-							return;
-						}
-						let name2 = executor.tag;
-						let icon2 = executor.avatarURL();
-						if(executor.avatar == null) {
-							icon2 = "attachment://discord_logo_gray.png";
-						}
-						if (stringKey === "$add") {
-							embedsMemberUpdate.setColor("Yellow");
-							if (executor.id === target.id) {
-								name2 = target.tag;
-								icon2 = target.avatarURL();
-								if(target.avatar == null) {
-									icon2 = "attachment://discord_logo_gray.png";
-								}
-								embedsMemberUpdate.setDescription(`${target} was given the \`${stringNewName}\` role by them self.`);
-							} else {
-								embedsMemberUpdate.setDescription(`${target} was given the \`${stringNewName}\` role by ${executor}.`);
-							}
-							embedsMemberUpdate.setAuthor({ name: `${name2}`, iconURL: `${icon2}` })
-								.setFooter({ text: `MemberID: ${target.id}` })
-								.setTimestamp(new Date());
-							// eslint-disable-next-line no-undef
-							globalclient.channels.cache.get(logChannel).send({ embeds: [embedsMemberUpdate] });
-						}
-						if (stringKey === "$remove") {
-							embedsMemberUpdate.setColor("Yellow");
-							if (executor.id === target.id) {
-								name2 = target.tag;
-								icon2 = target.avatarURL();
-								if(target.avatar == null) {
-									icon2 = "attachment://discord_logo_gray.png";
-								}
-								embedsMemberUpdate.setDescription(`${target} removed them self from the \`${stringNewName}\` role.`);
-							} else {
-								embedsMemberUpdate.setDescription(`${executor} removed ${target} from the \`${stringNewName}\` role.`);
-							}
-							embedsMemberUpdate.setAuthor({ name: `${name2}`, iconURL: `${icon2}` })
-								.setFooter({ text: `MemberID: ${target.id}` })
-								.setTimestamp(new Date());
-							// eslint-disable-next-line no-undef
-							globalclient.channels.cache.get(logChannel).send({ embeds: [embedsMemberUpdate] });
-						}
-					}
+			if (dataAuditLogIDRole == null || dataAuditLogIDRole.AuditLogID !== memberRoleUpdateLog.id) {
+				// Member Role Update
+				const embedsMemberRoleUpdate = new EmbedBuilder()
+					.setColor(Application.colors().logEmbedColor.update);
+				const { executor, changes, id, target } = memberRoleUpdateLog;
+
+				const arrayOfKey = changes.map(function(obj) {
+					return obj.key;
+				});
+				const arrayOfRoleId = changes.map(function(obj) {
+					return obj.new.map(function(obj) {
+						return obj.id;
+					});
+				});
+				// const arrayOfRoleName = changes.map(function(obj) {
+				// 	return obj.new.map(function(obj) {
+				// 		return obj.name;
+				// 	});
+				// });
+				const stringKey = arrayOfKey.toString();
+				const stringRoleId = arrayOfRoleId.toString();
+				// const stringRoleName = arrayOfRoleName.toString();
+				const getRoleObj = await getGuildObj.roles.fetch(stringRoleId);
+
+				if (stringKey === "$add") {
+					embedsMemberRoleUpdate.setDescription(LanguageConvert.lang(lang.logs.addroleto, getRoleObj, `<@${target.id}>`));
 				}
+				if (stringKey === "$remove") {
+					embedsMemberRoleUpdate.setDescription(LanguageConvert.lang(lang.logs.removerolefrom, getRoleObj, `<@${target.id}>`));
+				}
+
+				icon2 = executor.avatarURL();
+				if (executor.avatar == null) icon2 = "https://i.imgur.com/CN6k8gB.png";
+				embedsMemberRoleUpdate.setAuthor({ name: `${executor.tag} (ID: ${executor.id})`, iconURL: icon2 })
+					.setTimestamp(new Date());
+				// eslint-disable-next-line no-undef
+				globalclient.channels.cache.get(logChannel).send({ embeds: [embedsMemberRoleUpdate] });
+				dataAuditLogIDRole = { AuditLogID: `${id}`, GuildID: `${newMember.guild.id}`, Type: "Member_Update", Date: `${memberRoleUpdateLog.createdTimestamp}` };
+				Set.auditLogs(dataAuditLogIDRole);
 			}
+			if (dataAuditLogIDRole != null) {
+				if (dataAuditLogIDRole.AuditLogID === memberRoleUpdateLog.id) return;
+				const embedsIntegrationRoleUpdate = new EmbedBuilder()
+					.setColor(Application.colors().logEmbedColor.update);
+
+				const oldRoles = oldMember._roles;
+				const newRoles = newMember._roles;
+
+				if (oldRoles.length > newRoles.length) {
+					oldRoles.forEach(long => {
+						if (!newRoles.includes(long)) {
+							const getRoleObj = getGuildObj.roles.cache.get(long);
+							embedsIntegrationRoleUpdate.setDescription(LanguageConvert.lang(lang.logs.removerolefrom, getRoleObj, memberID));
+						}
+					});
+				}
+				if (newRoles.length > oldRoles.length) {
+					newRoles.forEach(long => {
+						if (!oldRoles.includes(long)) {
+							const getRoleObj = getGuildObj.roles.cache.get(long);
+							embedsIntegrationRoleUpdate.setDescription(LanguageConvert.lang(lang.logs.addroleto, getRoleObj, memberID));
+						}
+					});
+				}
+
+				icon2 = "https://i.imgur.com/CN6k8gB.png";
+				embedsIntegrationRoleUpdate.setAuthor({ name: LanguageConvert.lang(lang.logs.interactionid), iconURL: icon2 })
+					.setTimestamp(new Date());
+				// eslint-disable-next-line no-undef
+				globalclient.channels.cache.get(logChannel).send({ embeds: [embedsIntegrationRoleUpdate] });
+			}
+
 			let dataAuditLogDate;
 			// eslint-disable-next-line prefer-const
 			dataAuditLogDate = Get.allAuditLogs("Member_Update");
@@ -199,12 +172,13 @@ module.exports = {
 					}
 				});
 			}
+
 		} catch(err) {
 			let errData;
 			// eslint-disable-next-line no-undef
-			if (globalclient.guilds.get(guild.id) && err.code === 50013) {errData = `${err}\n[Client] The Bot/Member is Missing the requiered Permission.`;}
+			if (globalclient.guilds.cache.get(getGuildObj.id) && err.code === 50013) {errData = `${err}\n[Client] The Bot/Member is Missing the requiered Permission.`;}
 			// eslint-disable-next-line no-undef
-			if (!globalclient.guilds.get(guild.id) && err.code === 50013) {errData = `${err}\n[Client] The Bot left the Server ${guild.name}.`;}
+			if (!globalclient.guilds.cache.get(getGuildObj.id) && err.code === 50013) {errData = `${err}\n[Client] The Bot left the Server ${getGuildObj.name}.`;}
 			if (err.code !== 50013) {errData = err;}
 			// eslint-disable-next-line no-console
 			console.log(errData);

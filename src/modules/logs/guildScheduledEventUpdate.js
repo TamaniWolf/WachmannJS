@@ -1,14 +1,14 @@
-/* eslint-disable no-inline-comments */
-const { EmbedBuilder, AuditLogEvent } = require("discord.js");
+const { EmbedBuilder, AuditLogEvent, Events } = require("discord.js");
 require("dotenv").config();
 module.exports = {
-	name: "guildScheduledEventUpdate",
-	description: "Loggin bot's beeing added to the server.",
-	call: "on", // client.once = 'once', client.on = 'on'
+	name: Events.GuildScheduledEventUpdate,
+	description: "Log edited Events.",
+	call: "on",
 	async execute(oldGuildScheduledEvent, newGuildScheduledEvent) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
-		const logChannel = await DevCheck.LogChannel();
-		if (newGuildScheduledEvent.guildId !== process.env.SERVER_ID) return;
+		const logChannel = await DevCheck.LogChannel(newGuildScheduledEvent.guild.id);
+		if (logChannel === "0") return;
+		const { Application } = require("../../core/application/Application");
 		// SQLite
 		const { DateTime } = require("luxon");
 		const { Get, Set, Del } = require("../../tools/functions/sqlite/prepare");
@@ -23,6 +23,12 @@ module.exports = {
 		// Data Get
 		dataAuditLogID = Get.auditLogs(botLog.id);
 		// Data Check
+		const getBotConfigID = `${newGuildScheduledEvent.guild.id}-${newGuildScheduledEvent.guild.shard.id}`;
+		let dataLang;
+		dataLang = Get.botConfig(getBotConfigID);
+		if (dataLang == null) dataLang = { Lang: "./data/lang/en_US.json" };
+		const lang = require(`../../.${dataLang.Lang}`);
+		const { LanguageConvert } = require("../../tools/functions/languageConvert");
 		if (dataAuditLogID != null) {return;}
 		const { targetType, actionType, executor, changes, id, target } = botLog;
 		const createdTimestampLog = botLog.createdTimestamp;
@@ -33,9 +39,7 @@ module.exports = {
 		}
 		if (targetType === "GuildScheduledEvent" && actionType === "Update") {
 			let icon2 = executor.avatarURL();
-			if(executor.avatar == null) {
-				icon2 = "attachment://discord_logo_gray.png";
-			}
+			if (executor.avatar == null) icon2 = "https://i.imgur.com/CN6k8gB.png";
 			// Filter by Key
 			const mappedTitle = changes.filter(function(obj) {
 				return obj.key === "name";
@@ -60,43 +64,53 @@ module.exports = {
 			});
 			let oldData = "";
 			let newData = "";
-			if (mappedTitle.length && mappedTitle[0].old && mappedTitle[0].old.length !== 0) { oldData += `**Title:** ${mappedTitle[0].old}\n`; }
-			if (mappedDescription.length && mappedDescription[0].old && mappedDescription[0].old.length !== 0) { oldData += `**Description:** ${mappedDescription[0].old}\n`; }
-			if (mappedStart.length && mappedStart[0].old && mappedStart[0].old.length !== 0) { oldData += `**Start:** ${mappedStart[0].old}\n`; }
-			if (mappedEnd.length && mappedEnd[0].old && mappedEnd[0].old.length !== 0) { oldData += `**End:** ${mappedEnd[0].old}\n`; }
-			if (mappedLocation.length && mappedLocation[0].old && mappedLocation[0].old.length !== 0) { oldData += `**Location:** ${mappedLocation[0].old}\n`; }
-			if (mappedImage.length && mappedImage[0].old && mappedImage[0].old.length !== 0) { oldData += "**Cover Image:** The Old Cover Image.\n"; }
+			if (mappedTitle.length && mappedTitle[0].old && mappedTitle[0].old.length !== 0) oldData += `**${lang.logs.title}** ${mappedTitle[0].old}\n`;
+			if (mappedDescription.length && mappedDescription[0].old && mappedDescription[0].old.length !== 0) oldData += `**${lang.logs.description}** ${mappedDescription[0].old}\n`;
+			if (mappedStart.length && mappedStart[0].old && mappedStart[0].old.length !== 0) oldData += `**${lang.logs.start}** ${mappedStart[0].old}\n`;
+			if (mappedEnd.length && mappedEnd[0].old && mappedEnd[0].old.length !== 0) oldData += `**${lang.logs.end}** ${mappedEnd[0].old}\n`;
+			if (mappedLocation.length && mappedLocation[0].old && mappedLocation[0].old.length !== 0) oldData += `**${lang.logs.location}** ${mappedLocation[0].old}\n`;
+			// eslint-disable-next-line max-len
+			if (mappedImage.length && mappedImage[0].old && mappedImage[0].old.length !== 0) oldData += LanguageConvert.lang(lang.logs.coverimage, lang.logs.old);
 			if (mappedStatus.length && mappedStatus[0].old && mappedStatus[0].old.length !== 0) {
 				let statusTextOld;
-				if (mappedStatus[0].old === 1) { statusTextOld = "Scheduled"; } // SCHEDULED
-				if (mappedStatus[0].old === 2) { statusTextOld = "Started"; } // ACTIVE
-				if (mappedStatus[0].old === 3) { statusTextOld = "Ended"; } // COMPLETED
-				if (mappedStatus[0].old === 4) { statusTextOld = "Canceled"; } // CANCELED
-				oldData += `**Status:** ${statusTextOld}\n`;
+				// SCHEDULED
+				if (mappedStatus[0].old === 1) statusTextOld = `${lang.logs.scheduled}`;
+				// ACTIVE
+				if (mappedStatus[0].old === 2) statusTextOld = `${lang.logs.started}`;
+				// COMPLETED
+				if (mappedStatus[0].old === 3) statusTextOld = `${lang.logs.ended}`;
+				// CANCELED
+				if (mappedStatus[0].old === 4) statusTextOld = `${lang.logs.canceled}`;
+				oldData += LanguageConvert.lang(lang.logs.startus, statusTextOld);
 			}
-			if (mappedTitle.length && mappedTitle[0].new && mappedTitle[0].new.length !== 0) { newData += `**Title:** ${mappedTitle[0].new}\n`; }
-			if (mappedDescription.length && mappedDescription[0].new && mappedDescription[0].new.length !== 0) { newData += `**Description:** ${mappedDescription[0].new}\n`; }
-			if (mappedStart.length && mappedStart[0].new && mappedStart[0].new.length !== 0) { newData += `**Start:** ${mappedStart[0].new}\n`; }
-			if (mappedEnd.length && mappedEnd[0].new && mappedEnd[0].new.length !== 0) { newData += `**End:** ${mappedEnd[0].new}\n`; }
-			if (mappedLocation.length && mappedLocation[0].new && mappedLocation[0].new.length !== 0) { newData += `**Location:** ${mappedLocation[0].new}\n`; }
-			if (mappedImage.length && mappedImage[0].new && mappedImage[0].new.length !== 0) { newData += "**Cover Image:** The New Cover Image.\n"; }
+			if (mappedTitle.length && mappedTitle[0].new && mappedTitle[0].new.length !== 0) newData += `**${lang.logs.title}** ${mappedTitle[0].new}\n`;
+			if (mappedDescription.length && mappedDescription[0].new && mappedDescription[0].new.length !== 0) newData += `**${lang.logs.description}** ${mappedDescription[0].new}\n`;
+			if (mappedStart.length && mappedStart[0].new && mappedStart[0].new.length !== 0) newData += `**${lang.logs.start}** ${mappedStart[0].new}\n`;
+			if (mappedEnd.length && mappedEnd[0].new && mappedEnd[0].new.length !== 0) newData += `**${lang.logs.end}** ${mappedEnd[0].new}\n`;
+			if (mappedLocation.length && mappedLocation[0].new && mappedLocation[0].new.length !== 0) newData += `**${lang.logs.location}** ${mappedLocation[0].new}\n`;
+			// eslint-disable-next-line max-len
+			if (mappedImage.length && mappedImage[0].new && mappedImage[0].new.length !== 0) newData += LanguageConvert.lang(lang.logs.coverimage, lang.logs.new);
 			if (mappedStatus.length && mappedStatus[0].new && mappedStatus[0].new.length !== 0) {
 				let statusTextNew;
-				if (mappedStatus[0].new === 1) { statusTextNew = "Scheduled"; } // SCHEDULED
-				if (mappedStatus[0].new === 2) { statusTextNew = "Started"; } // ACTIVE
-				if (mappedStatus[0].new === 3) { statusTextNew = "Ended"; } // COMPLETED
-				if (mappedStatus[0].new === 4) { statusTextNew = "Canceled"; } // CANCELED
-				newData += `**Status:** ${statusTextNew}\n`;
+				// SCHEDULED
+				if (mappedStatus[0].new === 1) statusTextNew = `${lang.logs.scheduled}`;
+				// ACTIVE
+				if (mappedStatus[0].new === 2) statusTextNew = `${lang.logs.started}`;
+				// COMPLETED
+				if (mappedStatus[0].new === 3) statusTextNew = `${lang.logs.ended}`;
+				// CANCELED
+				if (mappedStatus[0].new === 4) statusTextNew = `${lang.logs.canceled}`;
+				newData += LanguageConvert.lang(lang.logs.startus, statusTextNew);
 			}
 			const gseu = new EmbedBuilder()
-				.setAuthor({ name: `${executor.tag}`, iconURL: `${icon2}` })
-				.setColor("Blue")
-				.setDescription(`${executor} **Updated** Event \`${target.name}\``)
+				.setAuthor({ name: `${executor.tag} (ID: ${executor.id})`, iconURL: `${icon2}` })
+				.setColor(Application.colors().logEmbedColor.update)
+				.setDescription(LanguageConvert.lang(lang.logs.editevent, target.name))
 				.addFields(
-					{ name: "Old:", value: `${oldData}`, inline: true },
-					{ name: "New:", value: `${newData}`, inline: true }
+					{ name: `${lang.logs.old}`, value: `${oldData}`, inline: true },
+					{ name: `${lang.logs.new}`, value: `${newData}`, inline: true }
 				)
-				.setFooter({ text: `MemberID: ${target.id}` })
+				.setFooter({ text: `${lang.logs.memberid} ${target.id}` })
 				.setTimestamp(new Date());
 			// eslint-disable-next-line no-undef
 			globalclient.channels.cache.get(logChannel).send({ embeds: [gseu] });

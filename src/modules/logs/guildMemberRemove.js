@@ -1,14 +1,14 @@
-/* eslint-disable no-inline-comments */
-const { EmbedBuilder, AuditLogEvent } = require("discord.js");
+const { EmbedBuilder, AuditLogEvent, Events } = require("discord.js");
 require("dotenv").config();
 module.exports = {
-	name: "guildMemberRemove",
-	description: "Loggin bot's beeing added to the server.",
-	call: "on", // client.once = 'once', client.on = 'on'
+	name: Events.GuildMemberRemove,
+	description: "Log kicked/lefting Members.",
+	call: "on",
 	async execute(member) {
+		const { Application } = require("../../core/application/Application");
 		const { DevCheck } = require("../../tools/functions/devCheck");
-		const logChannel = await DevCheck.LogChannel();
-		if (member.guild.id !== process.env.SERVER_ID) return;
+		const logChannel = await DevCheck.LogChannel(member.guild.id);
+		if (logChannel === "0") return;
 		// SQLite
 		const { DateTime } = require("luxon");
 		const { Get, Set, Del } = require("../../tools/functions/sqlite/prepare");
@@ -22,19 +22,25 @@ module.exports = {
 		const kickLog = fetchedLogs.entries.first();
 		// Data Null
 		let dataAuditLogID;
+		const getBotConfigID = `${member.guild.id}-${member.guild.shard.id}`;
+		let dataLang;
+		dataLang = Get.botConfig(getBotConfigID);
+		if (dataLang == null) dataLang = { Lang: "./data/lang/en_US.json" };
+		const lang = require(`../../.${dataLang.Lang}`);
+		const { LanguageConvert } = require("../../tools/functions/languageConvert");
 		// Embed
 		const memberLeave = new EmbedBuilder()
-			.setColor("Orange")
+			.setColor(Application.colors().logEmbedColor.delete)
 			.setTimestamp(new Date());
 		// Member no AuditLog
 		if (kickLog == null) {
 			let icon2 = member.user.avatarURL();
-			if(member.user.avatar == null) {
-				icon2 = "attachment://discord_logo_gray.png";
-			}
-			memberLeave.setAuthor({ name: `${member.user.username}${member.user.discriminator}`, iconURL: `${icon2}` })
-				.setDescription(`<@${member.user.id}> **Left** the server`)
-				.setFooter({ text: `MemberID: ${member.user.id}` });
+			if (member.user.avatar == null) icon2 = "https://i.imgur.com/CN6k8gB.png";
+			let oldNewTag;
+			if (member.user.discriminator === "0") oldNewTag = `@${member.user.username}`;
+			if (member.user.discriminator !== "0") oldNewTag = `@${member.user.username}#${member.user.discriminator}`;
+			memberLeave.setAuthor({ name: oldNewTag, iconURL: icon2 })
+				.setDescription(LanguageConvert.lang(lang.logs.lefted, member.user.id));
 			// eslint-disable-next-line no-undef
 			globalclient.channels.cache.get(logChannel).send({ embeds: [memberLeave] });
 			return;
@@ -53,28 +59,17 @@ module.exports = {
 		// Member
 		if (target.id !== member.user.id || dataAuditLogID != null) {
 			let icon2 = member.user.avatarURL();
-			if(member.user.avatar == null) {
-				icon2 = "attachment://discord_logo_gray.png";
-			}
+			if (member.user.avatar == null) icon2 = "https://i.imgur.com/CN6k8gB.png";
 			memberLeave.setAuthor({ name: `${member.user.username}${member.user.discriminator}`, iconURL: `${icon2}` })
-				.setDescription(`<@${member.user.id}> **Left** the server`)
-				.setFooter({ text: `MemberID: ${member.user.id}` });
+				.setDescription(LanguageConvert.lang(lang.logs.lefted, member.user.id));
 			// eslint-disable-next-line no-undef
 			globalclient.channels.cache.get(logChannel).send({ embeds: [memberLeave] });
 		}
 		if (target.id === member.user.id && dataAuditLogID == null) {
 			let icon2 = executor.avatarURL();
-			if(executor.avatar == null) {
-				icon2 = "attachment://discord_logo_gray.png";
-			}
-			memberLeave.setAuthor({ name: `${executor.tag}`, iconURL: `${icon2}` })
-				.setDescription(`${target} got **Kicked** out by ${executor}`)
-				.setFooter({ text: `MemberID: ${target.id}` });
-			if (target.id === member.user.id && reason != null) {
-				memberLeave.addFields(
-					{ name: "**Reason:**", value: `${reason}` }
-				);
-			}
+			if (executor.avatar == null) icon2 = "https://i.imgur.com/CN6k8gB.png";
+			memberLeave.setAuthor({ name: `${executor.tag} (ID: ${executor.id})`, iconURL: `${icon2}` })
+				.setDescription(LanguageConvert.lang(lang.logs.kicked, target, reason));
 			// eslint-disable-next-line no-undef
 			globalclient.channels.cache.get(logChannel).send({ embeds: [memberLeave] });
 			dataAuditLogID = { AuditLogID: `${id}`, GuildID: `${member.guild.id}`, Type: "Kick", Date: `${kickLog.createdTimestamp}` };

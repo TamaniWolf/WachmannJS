@@ -231,7 +231,8 @@ while [ "$choice" -eq 2 ]; do
         echo "(Sepperat the commands with a ',')"
         read -r externalcommands
         if [ ! "$externalcommands" ] || [ "$externalcommands" = "" ]; then
-            externalcommands=""
+            externalcommands="hug,megahug,boop,megaboop"
+            echo "Set to the default = hug,megahug,boop,megaboop"
             echo ""
             choice=116
         else
@@ -245,8 +246,8 @@ while [ "$choice" -eq 2 ]; do
         echo "(Sepperated by a commata ',')"
         read -r enablecommands
         if [ ! "$enablecommands" ] || [ "$enablecommands" = "" ]; then
-            enablecommands="help,info,ping,sleep,clear"
-            echo "Set to the default = help,info,ping,sleep,clear"
+            enablecommands="help,info,ping,sleep,clear,autoban"
+            echo "Set to the default = help,info,ping,sleep,clear,autoban"
             echo ""
             choice=117
         else
@@ -260,8 +261,8 @@ while [ "$choice" -eq 2 ]; do
         echo "(Sepperated by a commata ',')"
         read -r enablemodules
         if [ ! "$enablemodules" ] || [ "$enablemodules" = "" ]; then
-            enablemodules="logs"
-            echo "Set to the default = logs"
+            enablemodules="logs,accountage"
+            echo "Set to the default = logs,accountage"
             echo ""
             choice=118
         else
@@ -290,11 +291,21 @@ while [ "$choice" -eq 2 ]; do
         echo "" >> $envfile
         echo "BOT_CHANNEL = $botchannel" >> $envfile
         echo "LOG_CHANNEL = $logchannel" >> $envfile
-        echo "LOG_COMMANDS = $logcommands" >> $envfile
-        echo "LOG_BOTS = $logbots" >> $envfile
+        echo "" >> $envfile
+        echo "// Here you can decide if you want Bots and there commands to be logged in the logs." >> $envfile
+        echo "// ------- true is ON / false is OFF" >> $envfile
+        echo "LOGGING_COMMANDS = $logcommands" >> $envfile
+        echo "LOGGING_BOTS = $logbots" >> $envfile
+        echo "" >> $envfile
+        echo "// Exclude commands of other bots from being logged." >> $envfile
+        echo "// ------- hug,megahug,boop,megaboop" >> $envfile
         echo "EXTERNAL_COMMANDS = $externalcommands" >> $envfile
         echo "" >> $envfile
+        echo "// Enable the bots commands by entering them in." >> $envfile
+        echo "// ------- help,info,ping,sleep,clear,automod" >> $envfile
         echo "ENABLE_COMMANDS = $enablecommands" >> $envfile
+        echo "// Enable the bots modules / functions by entering them in." >> $envfile
+        echo "// ------- logs,accountage" >> $envfile
         echo "ENABLE_MODULES = $enablemodules" >> $envfile
         echo "" >> $envfile
         choice=3

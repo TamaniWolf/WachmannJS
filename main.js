@@ -5,17 +5,21 @@ const { Application } = require("./src/core/application/Application.js");
 Application.init();
 Application.start();
 
-// Application Stop
-process.on("SIGINT", () => Application.stop());
-process.on("SIGTERM", () => Application.stop());
-process.on("exit", () => Application.stop());
+// Application stop
+process.on("SIGINT", (signal) => Application.stop(signal));
+process.on("SIGTERM", (signal) => Application.stop(signal));
+process.on("exit", (signal) => Application.stop(signal));
 
-// Error Listener
-process.on("unhandledRejection", (e) => {
-	console.error(e);
+// Error listener
+process.on("shardError", (err) => {
+	console.error(`[ERROR] A Websocket connection encountered errors: \n${err.stack}`);
 });
-process.on("uncaughtException", (e, ee) => {
-	console.error(ee);
-	console.error(e);
+process.on("unhandledRejection", (err) => {
+	console.error(`[ERROR] Unhandled promise rejections: \n${err.stack}`);
+});
+process.on("uncaughtException", (err, errs) => {
+	console.error(`[ERROR] Uncaught error: \n${err.stack}`);
+	console.error(`[ERROR] Uncaught errors: \n${errs.stack}`);
+	// process.exit(1) //mandatory (as per the Node.js docs)
 });
 // //--------END--------//

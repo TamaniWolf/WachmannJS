@@ -1,6 +1,6 @@
+/* eslint-disable no-console */
 // Require and set
 const { DateTime } = require("luxon");
-const fs = require("node:fs");
 const timeFormat = "LL" + "/" + "dd" + "/" + "yyyy" + "-" + "h" + ":" + "mm" + ":" + "ss" + "-" + "a";
 require("dotenv").config();
 
@@ -12,32 +12,32 @@ module.exports = {
 		if (message != null || message.channel.id != null || message.guild.id != null) {
 			// Context
 			const { DevCheck } = require("../../tools/functions/devCheck");
+			const { TextFileReader } = require("../../tools/functions/txtReader");
+			const { ErrorFileReader } = require("../../tools/functions/errorReader");
 			const botMaster = await DevCheck.BotMaster(message);
 			const botMasterRole = await DevCheck.BotMasterRole(message);
 			const botChannel = await DevCheck.BotChannel(message);
 			if (message.guild == null || botChannel === true) {
-				// eslint-disable-next-line no-inner-declarations
-				function read(file, callback) {
-					fs.readFile(file, "utf8", function(err, data) {
-						if (err) {
-							// eslint-disable-next-line no-console
-							console.log(err);
-						}
-						callback(data);
+				const data_out = await TextFileReader.read("help", message);
+				const sleep = async (ms) => await new Promise(r => setTimeout(r, ms));
+				// eslint-disable-next-line no-undef
+				const fetch_dm_user = await globalclient.users.fetch(message.author.id);
+				if (!Array.isArray(data_out)) fetch_dm_user.send({ content: data_out });
+
+				if (Array.isArray(data_out)) {
+					data_out.forEach(async (item) => {
+
+						if (item.length >= 1999) console.error("Text Paragraph too long.");
+
+						fetch_dm_user.send({ content: item });
+						await sleep(1000);
 					});
 				}
-				read("data/text/help.txt", async function(data) {
-					const a = data.replace("%s", `<@${message.author.id}>`);
-					// eslint-disable-next-line no-undef
-					const b = await globalclient.users.fetch(message.author.id);
-					b.send({ content: a });
-				});
 				// Error Messages
 			} else if (botMasterRole === true || botMaster === true) {
-				await message.reply({ content: "Nope, not here, try somewhere else.", ephemeral: true });
+				await message.reply({ content: await ErrorFileReader.read("wrongchannel", message), ephemeral: true });
 			}
 		} else {
-			// eslint-disable-next-line no-console
 			console.log(`[${DateTime.utc().toFormat(timeFormat)}][ClanBot] Interaction of Command 'adminhelp' returned 'null / undefined'.`);
 		}
 	}

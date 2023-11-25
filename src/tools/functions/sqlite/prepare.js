@@ -1,8 +1,8 @@
 // Require SQLite functions
-const { Get } = require("./Get");
-const { Set } = require("./Set");
-const { Del } = require("./Del");
-const { DB } = require("./DB");
+const { Get } = require("./Get.js");
+const { Set } = require("./Set.js");
+const { Del } = require("./Del.js");
+const { DB } = require("./DB.js");
 
 // Export SQLite functions
 exports.Get = Get;

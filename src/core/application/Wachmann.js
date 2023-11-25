@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-multi-spaces */
 /* eslint-disable no-inline-comments */
 // DiscordJS
@@ -14,6 +15,7 @@ const client = new Client({
 		GatewayIntentBits.GuildIntegrations,
 		GatewayIntentBits.GuildWebhooks,
 		GatewayIntentBits.GuildInvites,
+		GatewayIntentBits.GuildVoiceStates,
 		GatewayIntentBits.GuildPresences,
 		GatewayIntentBits.GuildMessages,
 		GatewayIntentBits.GuildMessageReactions,
@@ -40,17 +42,15 @@ const client = new Client({
 const fs = require("node:fs");
 const timeFormat = "LL" + "/" + "dd" + "/" + "yyyy" + "-" + "h" + ":" + "mm" + ":" + "ss" + "-" + "a";
 const { DateTime } = require("luxon");
-// eslint-disable-next-line no-console
 console.log(`[Time] ${DateTime.utc().toFormat(timeFormat)} [UTC]`);
 
 // Start
-// eslint-disable-next-line no-console
 console.log("[NodeJS] ▪ ▪ ▪ ▪ ▪  DiscordBot Start  ▪ ▪ ▪ ▪ ▪ ");
 
 // Command Event Database handler
 client.cooldowns = new Collection();
 client.commands = new Collection();
-["event_handler"].forEach(handler =>{
+["event_handler"].forEach(handler => {
 	require(`../handler/${handler}.js`)(client, Discord, fs);
 });
 // Login

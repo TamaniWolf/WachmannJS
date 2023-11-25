@@ -75,16 +75,17 @@ class DevCheck {
 		});
 	}
 	// Log Channel
-	static LogChannel() {
+	static LogChannel(guildId) {
 		return new Promise(async (resolve, reject) => {
 			try {
 				// eslint-disable-next-line no-undef
+				const getGuildObj = await globalclient.guilds.fetch(guildId);
 				const logChannelList = process.env.BOT_CHANNEL.split(/,+/g);
 				const logChannelArray = logChannelList.map(obj => {
 					return obj.trim();
 				});
-				const list = logChannelArray[0].toString();
-				resolve(list || "0");
+				const logChannel = logChannelArray.filter(obj => getGuildObj.channels.cache.get(obj) !== undefined).toString();
+				resolve(logChannel || "0");
 			} catch(err) {
 				reject(err);
 			}
@@ -97,7 +98,6 @@ class DevCheck {
 	// 			let server;
 	// 			let serverList;
 	// 			if (!process.env.SERVER_ID) serverList = [""];
-	// 			// if (guildId !== process.env.SERVER_ID) return;
 
 	// 			if (process.env.SERVER_ID) serverList = process.env.SERVER_ID.split(/,+/g);
 	// 			const serverListArray = serverList.map(obj => {

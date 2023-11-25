@@ -1,14 +1,14 @@
-/* eslint-disable no-inline-comments */
-const { EmbedBuilder, AuditLogEvent } = require("discord.js");
+const { EmbedBuilder, AuditLogEvent, Events } = require("discord.js");
 require("dotenv").config();
 module.exports = {
-	name: "guildBanRemove",
-	description: "Loggin bot's beeing added to the server.",
-	call: "on", // client.once = 'once', client.on = 'on'
+	name: Events.GuildBanRemove,
+	description: "Log deleted Bans.",
+	call: "on",
 	async execute(ban) {
+		const { Application } = require("../../core/application/Application");
 		const { DevCheck } = require("../../tools/functions/devCheck");
-		const logChannel = await DevCheck.LogChannel();
-		if (ban.guild.id !== process.env.SERVER_ID) return;
+		const logChannel = await DevCheck.LogChannel(ban.guild.id);
+		if (logChannel === "0") return;
 		const fetchedLogs = await ban.guild.fetchAuditLogs({
 			limit: 1,
 			type: AuditLogEvent.MemberBanRemove
@@ -17,23 +17,22 @@ module.exports = {
 		if (logChannel === "100000000000000000") {
 			return;
 		}
-		const { reason, executor, target } = banLog;
+		const { Get } = require("../../tools/functions/sqlite/prepare");
+		const getBotConfigID = `${ban.guild.id}-${ban.guild.shard.id}`;
+		let dataLang;
+		dataLang = Get.botConfig(getBotConfigID);
+		if (dataLang == null) dataLang = { Lang: "./data/lang/en_US.json" };
+		const lang = require(`../../.${dataLang.Lang}`);
+		const { LanguageConvert } = require("../../tools/functions/languageConvert");
+		const { executor, target } = banLog;
 		let icon2 = executor.avatarURL();
-		if(executor.avatar == null) {
-			icon2 = "attachment://discord_logo_gray.png";
-		}
+		if (executor.avatar == null) icon2 = "https://i.imgur.com/CN6k8gB.png";
 
 		const embedBanRemove = new EmbedBuilder()
-			.setAuthor({ name: `${executor.tag}`, iconURL: `${icon2}` })
-			.setColor("DarkGreen")
-			.setDescription(`${target} got **Unbanned** by ${executor}`)
-			.setFooter({ text: `MemberID: ${target.id}` })
+			.setAuthor({ name: `${executor.tag} (ID: ${executor.id})`, iconURL: `${icon2}` })
+			.setColor(Application.colors().logEmbedColor.unban)
+			.setDescription(LanguageConvert.lang(lang.logs.unban, target))
 			.setTimestamp(new Date());
-		if (target.id === ban.user.id && reason != null) {
-			embedBanRemove.addFields(
-				{ name: "**Reason:**", value: `${reason}` }
-			);
-		}
 		if (target.id === ban.user.id) {
 			// eslint-disable-next-line no-undef
 			globalclient.channels.cache.get(logChannel).send({ embeds: [embedBanRemove] });

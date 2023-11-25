@@ -1,15 +1,14 @@
-/* eslint-disable no-inline-comments */
-const { EmbedBuilder, AuditLogEvent } = require("discord.js");
+const { EmbedBuilder, AuditLogEvent, Events } = require("discord.js");
 require("dotenv").config();
 module.exports = {
-	name: "emojiDelete",
-	description: "Loggin bot's beeing added to the server.",
-	call: "on", // client.once = 'once', client.on = 'on'
+	name: Events.GuildEmojiDelete,
+	description: "Log deleted Emojis.",
+	call: "on",
 	async execute(emoji) {
+		const { Application } = require("../../core/application/Application");
 		const { DevCheck } = require("../../tools/functions/devCheck");
-		const logChannel = await DevCheck.LogChannel();
-		if (emoji.guild.id !== process.env.SERVER_ID) return;
-		// SQLite
+		const logChannel = await DevCheck.LogChannel(emoji.guild.id);
+		if (logChannel === "0") return;
 		// eslint-disable-next-line no-undef
 		const guild = await globalclient.guilds.fetch(emoji.guild.id);
 		const fetchedLogs = await guild.fetchAuditLogs({
@@ -22,22 +21,24 @@ module.exports = {
 			return;
 		}
 		// Context
-		if (log !== null) {
-			// console.log('EmojiDelete');
-			// console.log(emoji);
+		const { Get } = require("../../tools/functions/sqlite/prepare");
+		const getBotConfigID = `${guild.id}-${guild.shard.id}`;
+		let dataLang;
+		dataLang = Get.botConfig(getBotConfigID);
+		if (dataLang == null) dataLang = { Lang: "./data/lang/en_US.json" };
+		const lang = require(`../../.${dataLang.Lang}`);
+		const { LanguageConvert } = require("../../tools/functions/languageConvert");
+		if (log == null) {
 			return;
 		}
 		const { actionType, executor } = log;
 		let icon2 = executor.avatarURL();
-		if(executor.avatar == null) {
-			icon2 = "attachment://discord_logo_gray.png";
-		}
-		if(actionType === "Delete") {
+		if (executor.avatar == null) icon2 = "https://i.imgur.com/CN6k8gB.png";
+		if (actionType === "Delete") {
 			const channelName = new EmbedBuilder()
-				.setAuthor({ name: `${executor.tag}`, iconURL: `${icon2}` })
-				.setColor("Blue")
-				.setDescription(`${executor} **Deleted** Emoji \`:${emoji.name}:\` from the server`)
-				.setFooter({ text: `MemberID: ${executor.id}` })
+				.setAuthor({ name: `${executor.tag} (ID: ${executor.id})`, iconURL: `${icon2}` })
+				.setColor(Application.colors().logEmbedColor.delete)
+				.setDescription(LanguageConvert.lang(lang.logs.deleteemoji, emoji.name))
 				.setTimestamp(new Date());
 			// eslint-disable-next-line no-undef
 			globalclient.channels.cache.get(logChannel).send({ embeds: [channelName] });

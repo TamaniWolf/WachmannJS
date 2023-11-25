@@ -1,0 +1,3 @@
+{
+    "packages": [ "better-sqlite3", "discord.js", "dotenv", "glob", "luxon" ]
+}

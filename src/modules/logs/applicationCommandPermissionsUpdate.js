@@ -1,14 +1,14 @@
-/* eslint-disable no-inline-comments */
-const { EmbedBuilder, AuditLogEvent } = require("discord.js");
+const { EmbedBuilder, AuditLogEvent, Events } = require("discord.js");
 require("dotenv").config();
 module.exports = {
-	name: "applicationCommandPermissionsUpdate",
-	description: "Loggin bot's beeing added to the server.",
-	call: "on", // client.once = 'once', client.on = 'on'
+	name: Events.ApplicationCommandPermissionsUpdate,
+	description: "Log edited Application Command Permissions.",
+	call: "on",
 	async execute(data) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
-		const logChannel = await DevCheck.LogChannel();
-		if (data.guildId !== process.env.SERVER_ID) return;
+		const { Application } = require("../../core/application/Application");
+		const logChannel = await DevCheck.LogChannel(data.guildId);
+		if (logChannel === "0") return;
 		// ACPU
 		// eslint-disable-next-line no-undef
 		const guild = await globalclient.guilds.fetch(data.guildId);
@@ -20,35 +20,38 @@ module.exports = {
 		// Context
 		const channel = await guild.channels.fetch(logChannel);
 
-		const logembed = new EmbedBuilder()
-			.setColor("Blue")
-			.setTimestamp(new Date());
-
 		const { executor, changes, target } = requestLog;
 
-		const oldChange = changes.find((c) => c.old != undefined);
-		const newChange = changes.find((c) => c.new != undefined);
+		const oldChange = changes.find((c) => c.old != null);
+		const newChange = changes.find((c) => c.new != null);
+
 		// Message
+		const { Get } = require("../../tools/functions/sqlite/prepare");
+		const getBotConfigID = `${guild.id}-${guild.shard.id}`;
+		let dataLang;
+		dataLang = Get.botConfig(getBotConfigID);
+		if (dataLang == null) dataLang = { Lang: "./data/lang/en_US.json" };
+		const lang = require(`../../.${dataLang.Lang}`);
+		const { LanguageConvert } = require("../../tools/functions/languageConvert");
 		let iconmember = executor.avatarURL();
-		if(executor.avatar == null) {
-			iconmember = "attachment://discord_logo_gray.png";
-		}
+		if (executor.avatar == null) iconmember = "https://i.imgur.com/CN6k8gB.png";
+
+		const logembed = new EmbedBuilder()
+			.setAuthor({ name: `${executor.tag} (ID: ${executor.id})`, iconURL: `${iconmember}` })
+			.setColor(Application.colors().logEmbedColor.update)
+			.setTimestamp(new Date());
+
 		if (oldChange == null) {
-			logembed.setAuthor({ name: `${executor.tag}`, iconURL: `${iconmember}` })
-				.setColor("Green")
-				.setDescription(`Command </${target.id}> got **Added**`)
-				.setFooter({ text: `MemberID: ${executor.id}` })
-				.setTimestamp(new Date());
+			logembed.setDescription(LanguageConvert.lang(lang.logs.acpu, lang.logs.create, target.id));
 			channel.send({ embeds: [logembed] });
-		} else if (oldChange != null) {
-			logembed.setAuthor({ name: `${executor.tag}`, iconURL: `${iconmember}` })
-				.setColor("Green")
-				.setDescription(`Command </${target.id}> got **Updated**`)
-				.setFooter({ text: `MemberID: ${executor.id}` })
-				.setTimestamp(new Date());
+		}
+		if (oldChange != null && newChange != null) {
+			logembed.setDescription(LanguageConvert.lang(lang.logs.acpu, lang.logs.edit, target.id));
 			channel.send({ embeds: [logembed] });
-		} else if (newChange == null) {
-			return;
+		}
+		if (oldChange != null && newChange == null) {
+			logembed.setDescription(LanguageConvert.lang(lang.logs.acpu, lang.logs.delete, target.id));
+			channel.send({ embeds: [logembed] });
 		}
 	}
 };

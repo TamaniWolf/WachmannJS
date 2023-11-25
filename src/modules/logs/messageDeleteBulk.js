@@ -1,13 +1,12 @@
-/* eslint-disable no-inline-comments */
-const { EmbedBuilder, AuditLogEvent } = require("discord.js");
+const { EmbedBuilder, AuditLogEvent, Events } = require("discord.js");
 require("dotenv").config();
 module.exports = {
-	name: "messageDeleteBulk",
-	description: "Loggin bot's beeing added to the server.",
-	call: "on", // client.once = 'once', client.on = 'on'
+	name: Events.MessageBulkDelete,
+	description: "Log bulk deleted Messages.",
+	call: "on",
 	async execute(messages) {
+		const { Application } = require("../../core/application/Application");
 		const { DevCheck } = require("../../tools/functions/devCheck");
-		const logChannel = await DevCheck.LogChannel();
 		const { DateTime } = require("luxon");
 		// SQLite
 		const { Get, Set, Del } = require("../../tools/functions/sqlite/prepare");
@@ -15,7 +14,8 @@ module.exports = {
 			return obj;
 		});
 		const getGuildID = msgs[0].guildId;
-		if (getGuildID !== process.env.SERVER_ID) return;
+		const logChannel = await DevCheck.LogChannel(getGuildID);
+		if (logChannel === "0") return;
 		// eslint-disable-next-line no-undef
 		const guild = await globalclient.guilds.fetch(getGuildID);
 		const fetchedLogs = await guild.fetchAuditLogs({
@@ -23,46 +23,42 @@ module.exports = {
 			type: AuditLogEvent.MessageBulkDelete
 		});
 		const botLog = fetchedLogs.entries.first();
+		const getBotConfigID = `${guild.id}-${guild.shard.id}`;
+		let dataLang;
+		dataLang = Get.botConfig(getBotConfigID);
+		if (dataLang == null) dataLang = { Lang: "./data/lang/en_US.json" };
+		const lang = require(`../../.${dataLang.Lang}`);
+		const { LanguageConvert } = require("../../tools/functions/languageConvert");
 		const { executor, id, extra } = botLog;
 		// Data Null
 		let dataAuditLog;
 		// Data Get
 		dataAuditLog = Get.auditLogs(botLog.id);
-		// Data Check
-		if (dataAuditLog == null) {
-			dataAuditLog = "0";
-		}
 		const MessageDelEmbed = new EmbedBuilder()
-			.setColor("Orange")
+			.setColor(Application.colors().logEmbedColor.delete)
 			.setTimestamp(new Date());
 
 		let icon2 = executor.avatarURL();
-		if(executor.avatar == null) {
-			icon2 = "attachment://discord_logo_gray.png";
-		}
-		if (dataAuditLog === "0") {
-			// New AuditLog Entry + New Message
-			MessageDelEmbed.setAuthor({ name: `${executor.tag}`, iconURL: `${icon2}` })
-				.setDescription(`${executor} **Bulk Deleted** ${messages.size} Messages in <#${msgs[0].channelId}>`)
-				.setFooter({ text: `BotID: ${executor.id}` });
+		if (executor.avatar == null) icon2 = "https://i.imgur.com/CN6k8gB.png";
+		if (dataAuditLog.AuditLogID === id && dataAuditLog.Count < extra.count) {
+			// Highter counter + New Message
+			MessageDelEmbed.setAuthor({ name: `${executor.tag} (ID: ${executor.id})`, iconURL: `${icon2}` })
+				.setDescription(LanguageConvert.lang(lang.logs.bulkdeleted2, messages.size, msgs[0].channelId));
 			dataAuditLog = { AuditLogID: `${id}`, GuildID: `${getGuildID}`, Type: "Message_Delete", Count: `${extra.count}`, Date: `${botLog.createdTimestamp}` };
 			Set.auditLogs(dataAuditLog);
 			// eslint-disable-next-line no-undef
 			globalclient.channels.cache.get(logChannel).send({ embeds: [MessageDelEmbed] });
-		} else
-			if (dataAuditLog.AuditLogID === id && dataAuditLog.Count < extra.count) {
-				// Highter counter + New Message
-				MessageDelEmbed.setAuthor({ name: `${executor.tag}`, iconURL: `${icon2}` })
-					.setDescription(`${executor} **Bulk Deleted** ${messages.size} Messages in <#${msgs[0].channelId}>`)
-					.setFooter({ text: `BotID: ${executor.id}` });
-				dataAuditLog = { AuditLogID: `${id}`, GuildID: `${getGuildID}`, Type: "Message_Delete", Count: `${extra.count}`, Date: `${botLog.createdTimestamp}` };
-				Set.auditLogs(dataAuditLog);
-				// eslint-disable-next-line no-undef
-				globalclient.channels.cache.get(logChannel).send({ embeds: [MessageDelEmbed] });
-			}
-		let dataAuditLogDate;
-		// eslint-disable-next-line prefer-const
-		dataAuditLogDate = Get.allAuditLogs("Message_Delete");
+		}
+		if (dataAuditLog == null) {
+			// New AuditLog Entry + New Message
+			MessageDelEmbed.setAuthor({ name: `@${executor.username} (ID ${executor.id})`, iconURL: icon2 })
+				.setDescription(LanguageConvert.lang(lang.logs.bulkdeleted1, messages.size, msgs[0].channelId));
+			dataAuditLog = { AuditLogID: `${id}`, GuildID: `${getGuildID}`, Type: "Message_Delete", Count: `${extra.count}`, Date: `${botLog.createdTimestamp}` };
+			Set.auditLogs(dataAuditLog);
+			// eslint-disable-next-line no-undef
+			globalclient.channels.cache.get(logChannel).send({ embeds: [MessageDelEmbed] });
+		}
+		const dataAuditLogDate = Get.allAuditLogs("Message_Delete");
 		if (dataAuditLogDate.length < 4) {
 			return;
 		} else {

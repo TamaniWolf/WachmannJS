@@ -1,15 +1,17 @@
+/* eslint-disable no-console */
 // Require.
-const { Events, Collection } = require("discord.js");
+// eslint-disable-next-line no-unused-vars
+const { Events, Message, Collection } = require("discord.js");
 // Require dotenv as config (.env).
 require("dotenv").config();
 
 module.exports = {
 	name: Events.MessageCreate,
+	once: false,
 	/**
      * @param {Message} message
      */
 	async execute(message) {
-		// console.log(message); return;
 
 		const canni = process.env.CANNI_ID;
 		const sani = process.env.SANI_ID;
@@ -18,9 +20,12 @@ module.exports = {
 		if (message.author.id === sani) Sani.Response(message, canni, sani);
 
 		// Check for Bot.
-		if (!message.author || message.author.bot) {
-			return;
-		}
+		if (!message.author || message.author.bot) return;
+
+		const { Get } = require("../../../tools/functions/sqlite/prepare.js");
+		let dataLang = Get.botConfig(`${message.guild.id}-${message.guild.shardId}`);
+		if (dataLang == null) dataLang = { Lang: "./data/lang/en_US.json" };
+		const lang = require(`../../../.${dataLang.Lang}`);
 
 		// Get Arguments and Command Name from Message.
 		let prefix;
@@ -37,7 +42,8 @@ module.exports = {
 				msg = msgWachmann;
 				args = argsWachmann;
 				prefix = `<@${process.env.WACHMANN_ID}> `;
-			} else if (!startsWithWachmann && !startsWithPrefix) {
+			}
+			if (!startsWithWachmann && !startsWithPrefix) {
 				msgNone = message.content.toLowerCase();
 				argsNone = msgNone.split(/ +/);
 				msg = msgNone;
@@ -67,7 +73,7 @@ module.exports = {
 		const { cooldowns } = globalclient;
 		// eslint-disable-next-line no-undef
 		const command = globalclient.commands.get(commandName);
-		if (command == null) { return; }
+		if (command == null) return;
 
 		// Cooldown
 		if (!cooldowns.has(command.name)) {
@@ -80,9 +86,7 @@ module.exports = {
 
 		if (timestamps.has(message.author.id)) {
 			const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
-			if (now < expirationTime) {
-				return;
-			}
+			if (now < expirationTime) return;
 		}
 
 		timestamps.set(message.author.id, now);
@@ -99,7 +103,7 @@ module.exports = {
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.error(error);
-				message.channel.send({ content: "There was an error while executing this command!", ephemeral: true });
+				message.channel.send({ content: lang.error.cmderror, ephemeral: true });
 			}
 		} else
 		// Check for Prefix and Prefix false.
@@ -116,7 +120,7 @@ module.exports = {
 				} catch (error) {
 					// eslint-disable-next-line no-console
 					console.error(error);
-					message.channel.send({ content: "There was an error while executing this command!", ephemeral: true });
+					message.channel.send({ content: lang.error.cmderror, ephemeral: true });
 				}
 			}
 	}

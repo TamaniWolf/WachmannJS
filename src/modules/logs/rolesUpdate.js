@@ -1,39 +1,46 @@
-/* eslint-disable no-inline-comments */
-const { EmbedBuilder, AuditLogEvent } = require("discord.js");
+const { EmbedBuilder, AuditLogEvent, Events } = require("discord.js");
 require("dotenv").config();
+
 module.exports = {
-	name: "roleUpdate",
-	description: "Loggin bot's beeing added to the server.",
-	call: "on", // client.once = 'once', client.on = 'on'
+	name: Events.GuildRoleUpdate,
+	description: "Log edited Roles.",
+	call: "on",
 	async execute(oldRole, newRole) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
-		const logChannel = await DevCheck.LogChannel();
+		const logChannel = await DevCheck.LogChannel(newRole.guild.id);
 		const { DateTime } = require("luxon");
 		const PermissionConvert = require("../../tools/functions/permissionConvert.js");
 		const ColorConvert = require("../../tools/functions/colorConvert.js");
-		// SQLite
 		const { Get, Set, Del } = require("../../tools/functions/sqlite/prepare");
-		// AuditLog Fetch
-		if (newRole.guild.id !== process.env.SERVER_ID) return;
+		const { Application } = require("../../core/application/Application");
+
 		const fetchedLogs = await newRole.guild.fetchAuditLogs({
 			limit: 1,
 			type: AuditLogEvent.RoleUpdate
 		});
 		const botLog = fetchedLogs.entries.first();
-		// Data Null
+
 		let dataAuditLogID;
-		// Data Get
-		if (botLog == null) {return;}
+		let icon2 = "";
 		dataAuditLogID = Get.auditLogs(botLog.id);
-		// Context
+		const getBotConfigID = `${newRole.guild.id}-${newRole.guild.shard.id}`;
+		let dataLang;
+		dataLang = Get.botConfig(getBotConfigID);
+		if (dataLang == null) dataLang = { Lang: "./data/lang/en_US.json" };
+		const lang = require(`../../.${dataLang.Lang}`);
+		const { LanguageConvert } = require("../../tools/functions/languageConvert");
 		const { targetType, actionType, executor, changes, id, target } = botLog;
+
+		const roleUpdate = new EmbedBuilder()
+			.setColor(Application.colors().logEmbedColor.update);
+
 		const createdTimestampLog = botLog.createdTimestamp;
 		const dt = DateTime.now().minus({ seconds: 5 });
 		const time = dt.toMillis();
 		if (time > createdTimestampLog) {
 			dataAuditLogID = { AuditLogID: `${id}`, GuildID: `${newRole.guild.id}`, Type: "Role_Update", Date: `${botLog.createdTimestamp}` };
 		}
-		if(targetType === "Role" || actionType === "Update") {
+		if (targetType === "Role" || actionType === "Update") {
 			const changeName = changes.filter(function(obj) {
 				return obj.key === "name";
 			});
@@ -49,73 +56,45 @@ module.exports = {
 			const changePermissions = changes.filter(function(obj) {
 				return obj.key === "permissions";
 			});
-			let ruo = ""; // Role Update Old
-			let runew = ""; // Role Update New
+			// Role Update New
+			let runew = "";
 			// Embed
-			let icon2 = executor.avatarURL();
-			if(executor.avatar == null) {
-				icon2 = "attachment://discord_logo_gray.png";
-			}
-			const embedCU = new EmbedBuilder()
-				.setAuthor({ name: `${executor.tag}`, iconURL: `${icon2}` })
-				.setColor("Blue")
-				.setDescription(`${executor} **Changed** Role ${target}'s settings`);
-			// Old
-			if (changeName && changeName.length !== 0) { ruo += `**Name:** ${changeName[0].old}\n`; }
-			if (changeColor && changeColor.length !== 0) {
-				const colorOld = await ColorConvert.IntToHex(changeColor[0].old);
-				ruo += `**Color:** ${colorOld}\n`;
-			}
-			if (changeHoist && changeHoist.length !== 0) { ruo += `**Display:** ${changeHoist[0].old}\n`; }
-			if (changeMention && changeMention.length !== 0) { ruo += `**Mentionable:** ${changeMention[0].old}\n`; }
-			if (changePermissions && changePermissions.length !== 0) {
-				const permOld = await PermissionConvert.permissionsBitField(changePermissions[0].old);
-				ruo += `**Permissions:**\n${permOld}\n`;
-				// ruo += `**Permissions:** ${changePermissions[0].old}\n`;
-			}
+			icon2 = executor.avatarURL();
+			if (executor.avatar == null) icon2 = "https://i.imgur.com/CN6k8gB.png";
+			roleUpdate.setAuthor({ name: `${executor.tag} (ID: ${executor.id})`, iconURL: icon2 })
+				.setDescription(`Edited Role ${target}`);
 			// New
-			if (changeName && changeName.length !== 0) { runew += `**Name:** ${changeName[0].new}\n`; }
-			if (changeColor && changeHoist.length !== 0 && changeColor[0]) {
+			if (changeName && changeName.length !== 0) runew += LanguageConvert.lang(lang.logs.namechange, changeName[0].old, changeName[0].new);
+			if (changeColor && changeColor.length !== 0 && changeColor[0]) {
+				const colorOld = await ColorConvert.IntToHex(changeColor[0].old);
 				const colorNew = await ColorConvert.IntToHex(changeColor[0].new);
-				runew += `**Color:** ${colorNew}\n`;
+				runew += LanguageConvert.lang(lang.logs.colorchange, colorOld, colorNew);
 			}
-			if (changeHoist && changeHoist.length !== 0) { runew += `**Display:** ${changeHoist[0].new}\n`; }
-			if (changeMention && changeMention.length !== 0) { runew += `**Mentionable:** ${changeMention[0].new}\n`; }
-			if (changePermissions && changePermissions.length !== 0) {
-				const permNew = await PermissionConvert.permissionsBitField(changePermissions[0].new);
-				runew += `**Permissions:**\n${permNew}\n`;
-				// runew += `**Permissions:** ${changePermissions[0].new}\n`;
-			}
-			// AddFileds
-			if (ruo && ruo.length !== 0) {
-				embedCU.addFields(
-					{ name: "Old:", value: `${ruo}`, inline: true }
-				);
-			}
+			if (changeHoist && changeHoist.length !== 0) runew += LanguageConvert.lang(lang.logs.displaychange, changeHoist[0].new);
+			if (changeMention && changeMention.length !== 0) runew += LanguageConvert.lang(lang.logs.mentionable, changeMention[0].new);
+
 			if (runew && runew.length !== 0) {
-				embedCU.addFields(
-					{ name: "New:", value: `${runew}`, inline: true }
+				roleUpdate.addFields(
+					{ name: "___", value: `${runew}`, inline: false }
 				);
 			}
+
+			if (changePermissions && changePermissions.length !== 0) {
+				const permissions = await PermissionConvert.permissions(changePermissions[0].old, changePermissions[0].new);
+				const permRevok = await PermissionConvert.permissionsNames(permissions.revoked);
+				const permGrant = await PermissionConvert.permissionsNames(permissions.granted);
+				roleUpdate.addFields(
+					{ name: `${lang.logs.revoked}`, value: `${permRevok}`, inline: true },
+					{ name: `${lang.logs.granted}`, value: `${permGrant}`, inline: true }
+				);
+			}
+
 			if (dataAuditLogID == null) {
-				// Bot
-				if (executor.bot === true) {
-					embedCU.setFooter({ text: `BotID: ${executor.id}` })
-						.setTimestamp(new Date());
-					dataAuditLogID = { AuditLogID: `${id}`, GuildID: `${newRole.guild.id}`, Type: "Role_Update", Date: `${botLog.createdTimestamp}` };
-					Set.auditLogs(dataAuditLogID);
-					// eslint-disable-next-line no-undef
-					globalclient.channels.cache.get(logChannel).send({ embeds: [embedCU] });
-				} else
-				// Member
-					if (executor.bot != true) {
-						embedCU.setFooter({ text: `MemberID: ${executor.id}` })
-							.setTimestamp(new Date());
-						dataAuditLogID = { AuditLogID: `${id}`, GuildID: `${newRole.guild.id}`, Type: "Role_Update", Date: `${botLog.createdTimestamp}` };
-						Set.auditLogs(dataAuditLogID);
-						// eslint-disable-next-line no-undef
-						globalclient.channels.cache.get(logChannel).send({ embeds: [embedCU] });
-					}
+				roleUpdate.setTimestamp(new Date());
+				dataAuditLogID = { AuditLogID: `${id}`, GuildID: `${newRole.guild.id}`, Type: "Role_Update", Date: `${botLog.createdTimestamp}` };
+				Set.auditLogs(dataAuditLogID);
+				// eslint-disable-next-line no-undef
+				globalclient.channels.cache.get(logChannel).send({ embeds: [roleUpdate] });
 			}
 		}
 		let dataAuditLogDate;

@@ -12,6 +12,7 @@ module.exports = {
 		if (message != null || message.channel.id != null) {
 			// Context
 			const { DevCheck } = require("../../tools/functions/devCheck");
+			const { ErrorFileReader } = require("../../tools/functions/errorReader");
 			const botMaster = await DevCheck.BotMaster(message);
 			const botMasterRole = await DevCheck.BotMasterRole(message);
 			const botChannel = await DevCheck.BotChannel(message);
@@ -23,10 +24,10 @@ module.exports = {
 					globalclient.destroy();
 					// Error Messages
 				} else {
-					await message.reply({ content: "Nope, not here, try somewhere else.", ephemeral: true });
+					await message.reply({ content: await ErrorFileReader.read("wrongchannel", message), ephemeral: true });
 				}
 			} else {
-				await message.reply({ content: "Yeah sorry, but you are not in charge of me.", ephemeral: true });
+				await message.reply({ content: await ErrorFileReader.read("nobotdev", message), ephemeral: true });
 			}
 		} else {
 			// eslint-disable-next-line no-console

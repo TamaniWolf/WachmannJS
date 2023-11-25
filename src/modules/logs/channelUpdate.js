@@ -1,14 +1,14 @@
-/* eslint-disable no-inline-comments */
-const { EmbedBuilder, AuditLogEvent } = require("discord.js");
+const { EmbedBuilder, AuditLogEvent, Events } = require("discord.js");
 require("dotenv").config();
 module.exports = {
-	name: "channelUpdate",
-	description: "t",
+	name: Events.ChannelUpdate,
+	description: "Log edited Channels.",
 	call: "on",
 	async execute(oldChannel, newChannel) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
-		const logChannel = await DevCheck.LogChannel();
-		if (newChannel.guild.id !== process.env.SERVER_ID) return;
+		const logChannel = await DevCheck.LogChannel(newChannel.guild.id);
+		if (logChannel === "0") return;
+		const { Application } = require("../../core/application/Application");
 		const { DateTime } = require("luxon");
 		// SQLite
 		const { Get, Set, Del } = require("../../tools/functions/sqlite/prepare");
@@ -29,6 +29,12 @@ module.exports = {
 		let dataAuditLogIDCU;
 		let dataAuditLogIDCOU;
 		// Context
+		const getBotConfigID = `${guild.id}-${guild.shard.id}`;
+		let dataLang;
+		dataLang = Get.botConfig(getBotConfigID);
+		if (dataLang == null) dataLang = { Lang: "./data/lang/en_US.json" };
+		const lang = require(`../../.${dataLang.Lang}`);
+		const { LanguageConvert } = require("../../tools/functions/languageConvert");
 		let culogs = 2;
 		if (channelUpdateLog != null) {
 			culogs = channelUpdateLog.createdTimestamp;
@@ -43,7 +49,7 @@ module.exports = {
 			}
 			const { targetType, actionType, executor, changes, id, target } = channelUpdateLog;
 			if (dataAuditLogIDCU == null || id !== dataAuditLogIDCU.AuditLogID) {
-				if(targetType === "Channel" && actionType === "Update") {
+				if (targetType === "Channel" && actionType === "Update") {
 					const changeName = changes.filter(function(obj) {
 						return obj.key === "name";
 					});
@@ -62,70 +68,65 @@ module.exports = {
 					const changeDAAD = changes.filter(function(obj) {
 						return obj.key === "default_auto_archive_duration";
 					});
-					let cuo = ""; // Channel Update Old
-					let cun = ""; // Channel Update New
+					// Channel Update Old
+					let cuo = "";
+					// Channel Update New
+					let cun = "";
 					// Embed
 					let icon2 = executor.avatarURL();
-					if(executor.avatar == null) {
-						icon2 = "attachment://discord_logo_gray.png";
-					}
+					if (executor.avatar == null) icon2 = "https://i.imgur.com/CN6k8gB.png";
 					const embedCU = new EmbedBuilder()
-						.setAuthor({ name: `${executor.tag}`, iconURL: `${icon2}` })
-						.setColor("Blue")
-						.setDescription(`${executor} **Changed** Channel ${target}'s settings`);
-					const ChannelTypeConvert = require("../../tools/functions/channelTypeConvert.js");
-					let chaTypeOld;
-					if (changeType && changeType.length !== 0) {
-						chaTypeOld = await ChannelTypeConvert.channelTypeNumber(changeType[0].old);
-					}
-					let chaTypeNew;
-					if (changeType && changeType.length !== 0) {
-						chaTypeNew = await ChannelTypeConvert.channelTypeNumber(changeType[0].new);
-					}
+						.setAuthor({ name: `${executor.tag} (ID: ${executor.id})`, iconURL: `${icon2}` })
+						.setColor(Application.colors().logEmbedColor.update)
+						.setDescription(LanguageConvert.lang(lang.logs.editchannel, target));
+					const MiscConvert = require("../../tools/functions/miscConvert.js");
 					// Old
-					if (changeName && changeName.length !== 0) { cuo += `**Name:** ${changeName[0].old}\n`; }
-					if (changeTopic && changeTopic.length !== 0) { cuo += `**Topic:** ${changeTopic[0].old}\n`; }
-					if (changeType && changeType.length !== 0) { cuo += `**Type:** ${chaTypeOld}\n`; }
-					if (changeNsfw && changeNsfw.length !== 0) { cuo += `**Nsfw:** ${changeNsfw[0].old}\n`; }
-					if (changeRLPU && changeRLPU.length !== 0) { cuo += `**Slowmode:** ${changeRLPU[0].old}s\n`; }
+					if (changeName && changeName.length !== 0) { cuo += `**${lang.logs.name}:** ${changeName[0].old}\n`; }
+					if (changeTopic && changeTopic.length !== 0) { cuo += `**${lang.logs.topic}:** ${changeTopic[0].old}\n`; }
+					if (changeType && changeType.length !== 0) {
+						const chaType = await MiscConvert.channelTypeName(changeType[0].old);
+						cuo += `**${lang.logs.type}:** ${chaType}\n`;
+					}
+					if (changeNsfw && changeNsfw.length !== 0) { cuo += `**${lang.logs.nsfw}:** ${changeNsfw[0].old}\n`; }
+					if (changeRLPU && changeRLPU.length !== 0) {
+						const rateLimit = await MiscConvert.rateLimitPerUser(changeRLPU[0].old);
+						cuo += `**${lang.logs.slowmode}:** ${rateLimit}\n`;
+					}
 					if (changeDAAD && changeDAAD.length !== 0) {
-						let dAAD_Old = "";
-						if (changeDAAD[0].old === 60) { dAAD_Old += "1 Hour"; }
-						if (changeDAAD[0].old === 1440) { dAAD_Old += "24 Hours"; }
-						if (changeDAAD[0].old === 4320) { dAAD_Old += "3 Days"; }
-						if (changeDAAD[0].old === 10080) { dAAD_Old += "1 Week"; }
-						cuo += `**Hide Inactive Threads:** ${dAAD_Old}\n`;
+						const dad = await MiscConvert.defaultArchiveDuration(changeDAAD[0].old);
+						cuo += `**${lang.logs.activethreads}:** ${dad}\n`;
 					}
 					// New
-					if (changeName && changeName.length !== 0) { cun += `**Name:** ${changeName[0].new}\n`; }
-					if (changeTopic && changeTopic.length !== 0) { cun += `**Topic:** ${changeTopic[0].new}\n`; }
-					if (changeType && changeType.length !== 0) { cun += `**Type:** ${chaTypeNew}\n`; }
-					if (changeNsfw && changeNsfw.length !== 0) { cun += `**Nsfw:** ${changeNsfw[0].new}\n`; }
-					if (changeRLPU && changeRLPU.length !== 0) { cun += `**Slowmode:** ${changeRLPU[0].new}s\n`; }
+					if (changeName && changeName.length !== 0) { cun += `**${lang.logs.name}:** ${changeName[0].new}\n`; }
+					if (changeTopic && changeTopic.length !== 0) { cun += `**${lang.logs.topic}:** ${changeTopic[0].new}\n`; }
+					if (changeType && changeType.length !== 0) {
+						const chaType = await MiscConvert.channelTypeName(changeType[0].new);
+						cun += `**${lang.logs.type}:** ${chaType}\n`;
+					}
+					if (changeNsfw && changeNsfw.length !== 0) { cun += `**${lang.logs.nsfw}:** ${changeNsfw[0].new}\n`; }
+					if (changeRLPU && changeRLPU.length !== 0) {
+						const rateLimit = await MiscConvert.rateLimitPerUser(changeRLPU[0].new);
+						cun += `**${lang.logs.slowmode}:** ${rateLimit}\n`;
+					}
 					if (changeDAAD && changeDAAD.length !== 0) {
-						let dAAD_New = "";
-						if (changeDAAD[0].new === 60) { dAAD_New += "1 Hour"; }
-						if (changeDAAD[0].new === 1440) { dAAD_New += "24 Hours"; }
-						if (changeDAAD[0].new === 4320) { dAAD_New += "3 Days"; }
-						if (changeDAAD[0].new === 10080) { dAAD_New += "1 Week"; }
-						cun += `**Hide Inactive Threads:** ${dAAD_New}\n`;
+						const dad = await MiscConvert.defaultArchiveDuration(changeDAAD[0].old);
+						cun += `**${lang.logs.activethreads}:** ${dad}\n`;
 					}
 					// AddFileds
 					if (cuo && cuo.length !== 0) {
 						embedCU.addFields(
-							{ name: "Old:", value: `${cuo}`, inline: true }
+							{ name: lang.logs.old, value: `${cuo}`, inline: true }
 						);
 					}
 					if (cun && cun.length !== 0) {
 						embedCU.addFields(
-							{ name: "New:", value: `${cun}`, inline: true }
+							{ name: lang.logs.new, value: `${cun}`, inline: true }
 						);
 					}
 					if (dataAuditLogIDCU == null) {
 						// Bot
 						if (executor.bot === true) {
-							embedCU.setFooter({ text: `BotID: ${executor.id}` })
-								.setTimestamp(new Date());
+							embedCU.setTimestamp(new Date());
 							dataAuditLogIDCU = { AuditLogID: `${id}`, GuildID: `${newChannel.guild.id}`, Type: "Channel_Update", Date: `${channelUpdateLog.createdTimestamp}` };
 							Set.auditLogs(dataAuditLogIDCU);
 							// eslint-disable-next-line no-undef
@@ -133,8 +134,7 @@ module.exports = {
 						} else
 						// Member
 							if (executor.bot != true) {
-								embedCU.setFooter({ text: `MemberID: ${executor.id}` })
-									.setTimestamp(new Date());
+								embedCU.setTimestamp(new Date());
 								dataAuditLogIDCU = { AuditLogID: `${id}`, GuildID: `${newChannel.guild.id}`, Type: "Channel_Update", Date: `${channelUpdateLog.createdTimestamp}` };
 								Set.auditLogs(dataAuditLogIDCU);
 								// eslint-disable-next-line no-undef
@@ -148,62 +148,57 @@ module.exports = {
 			if (channelOverwriteUpdate != null) {
 				dataAuditLogIDCOU = Get.auditLogs(channelOverwriteUpdate.id);
 			}
-			const { targetType, actionType, executor, changes, id, extra, target } = channelOverwriteUpdate;
+			const { targetType, actionType, executor, id, target } = channelOverwriteUpdate;
+			// const { targetType, actionType, executor, changes, id, extra, target } = channelOverwriteUpdate;
 			if (dataAuditLogIDCOU == null || id != dataAuditLogIDCOU.AuditLogID) {
-				if(targetType === "Channel" && actionType === "Update") {
-					const changeCOUAllow = changes.filter(function(obj) {
-						return obj.key === "allow";
-					});
-					const changeCOUDeny = changes.filter(function(obj) {
-						return obj.key === "deny";
-					});
-					const PermissionConvert = require("../../tools/functions/permissionConvert.js");
-					const coua = await PermissionConvert.permissionsBitField(changeCOUAllow[0].new); // Channel Update Allow
-					const coud = await PermissionConvert.permissionsBitField(changeCOUDeny[0].new); // Channel Update Deny
+				if (targetType === "Channel" && actionType === "Update") {
+					// console.log(channelOverwriteUpdate);
+					// return;
+					// const changeCOUAllow = changes.filter(function(obj) {
+					// 	return obj.key === "allow";
+					// });
+					// const changeCOUDeny = changes.filter(function(obj) {
+					// 	return obj.key === "deny";
+					// });
+					// console.log(changes);
+					// let permAllow = "";
+					// let permDeny = "";
+					// if (changeCOUAllow != null) permAllow = changeCOUAllow[0].new;
+					// if (changeCOUAllow == null) permAllow = 0n;
+					// if (changeCOUDeny != null) permDeny = changeCOUDeny[0].new;
+					// if (changeCOUDeny == null) permDeny = 0n;
+					// const PermissionConvert = require("../../tools/functions/permissionConvert.js");
+					// const coua = await PermissionConvert.permissionsNames(permAllow); // Channel Update Allow
+					// const coud = await PermissionConvert.permissionsNames(permDeny); // Channel Update Deny
 					// Embed
 					let icon2 = executor.avatarURL();
-					if(executor.avatar == null) {
-						icon2 = "attachment://discord_logo_gray.png";
-					}
+					if (executor.avatar == null) icon2 = "https://i.imgur.com/CN6k8gB.png";
 					const embedCOU = new EmbedBuilder()
-						.setAuthor({ name: `${executor.tag}`, iconURL: `${icon2}` })
-						.setColor("Blue")
-						.setDescription(`${executor} **Changed** Permissions for ${extra} in Channel ${target}`);
+						.setAuthor({ name: `${executor.tag} (ID: ${executor.id})`, iconURL: `${icon2}` })
+						.setColor(Application.colors().logEmbedColor.update)
+						.setDescription(LanguageConvert.lang(lang.logs.editpermoverwrite, target));
 					// AddFileds
-					if (coua && coua.length !== 0) {
-						embedCOU.addFields(
-							{ name: "Granted:", value: `${coua}`, inline: true }
-						);
-					}
-					if (coud && coud.length !== 0) {
-						embedCOU.addFields(
-							{ name: "Revoked:", value: `${coud}`, inline: true }
-						);
-					}
-					if (changeCOUAllow[0].new === 0 || changeCOUDeny[0].new === 0) {
-						embedCOU.addFields(
-							{ name: "Resetted to Default:", value: ".", inline: true }
-						);
-					}
+					// if (coua && coua.length !== 0) {
+					// 	embedCOU.addFields(
+					// 		{ name: "Granted:", value: `${coua}`, inline: true }
+					// 	);
+					// }
+					// if (coud && coud.length !== 0) {
+					// 	embedCOU.addFields(
+					// 		{ name: "Revoked:", value: `${coud}`, inline: true }
+					// 	);
+					// }
+					// if (changeCOUAllow[0].new === 0 || changeCOUDeny[0].new === 0) {
+					// 	embedCOU.addFields(
+					// 		{ name: "Resetted to Default:", value: ".", inline: true }
+					// 	);
+					// }
 					if (dataAuditLogIDCOU == null) {
-						// Bot
-						if (executor.bot === true) {
-							embedCOU.setFooter({ text: `BotID: ${executor.id}` })
-								.setTimestamp(new Date());
-							dataAuditLogIDCOU = { AuditLogID: `${id}`, GuildID: `${newChannel.guild.id}`, Type: "Channel_Update", Date: `${channelOverwriteUpdate.createdTimestamp}` };
-							Set.auditLogs(dataAuditLogIDCOU);
-							// eslint-disable-next-line no-undef
-							globalclient.channels.cache.get(logChannel).send({ embeds: [embedCOU] });
-						} else
-						// Member
-							if (executor.bot != true) {
-								embedCOU.setFooter({ text: `MemberID: ${executor.id}` })
-									.setTimestamp(new Date());
-								dataAuditLogIDCOU = { AuditLogID: `${id}`, GuildID: `${newChannel.guild.id}`, Type: "Channel_Update", Date: `${channelOverwriteUpdate.createdTimestamp}` };
-								Set.auditLogs(dataAuditLogIDCOU);
-								// eslint-disable-next-line no-undef
-								globalclient.channels.cache.get(logChannel).send({ embeds: [embedCOU] });
-							}
+						embedCOU.setTimestamp(new Date());
+						dataAuditLogIDCOU = { AuditLogID: `${id}`, GuildID: `${newChannel.guild.id}`, Type: "Channel_Update", Date: `${channelOverwriteUpdate.createdTimestamp}` };
+						Set.auditLogs(dataAuditLogIDCOU);
+						// eslint-disable-next-line no-undef
+						globalclient.channels.cache.get(logChannel).send({ embeds: [embedCOU] });
 					}
 				}
 			}

@@ -1,7 +1,7 @@
 require("dotenv").config();
 
 module.exports = () => {
-	const { DB } = require("../../../../functions/sqlite/prepare");
+	const { DB } = require("../../../functions/sqlite/prepare");
 	// Config.
 	const guildID = DB.auditLogs().prepare("SELECT count(*) FROM pragma_table_info('messagedel') WHERE name = 'GuildID';").get();
 	if (!guildID["count(*)"]) {
