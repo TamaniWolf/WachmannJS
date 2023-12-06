@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.MessageBulkDelete,
 	description: "Log bulk deleted Messages.",
-	call: "on",
+	once: false,
 	async execute(messages) {
 		const { Application } = require("../../core/application/Application");
 		const { DevCheck } = require("../../tools/functions/devCheck");

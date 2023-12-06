@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.GuildScheduledEventUserAdd,
 	description: "Log Added Event interest.",
-	call: "on",
+	once: false,
 	async execute(guildScheduledEvent, user) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel(guildScheduledEvent.guildId);

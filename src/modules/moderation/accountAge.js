@@ -8,7 +8,7 @@ require("dotenv").config;
 module.exports = {
 	name: Events.GuildMemberAdd,
 	description: "Check Joining Account' Age and Banning them if to young.",
-	call: "on",
+	once: false,
 	async execute(member) {
 		const enabledModulesSplit = process.env.ENABLE_MODULES.split(/,+/);
 		const enabledModulesTrim = enabledModulesSplit.map(obj => {return obj.trim();});

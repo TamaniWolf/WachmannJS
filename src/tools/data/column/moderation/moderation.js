@@ -15,4 +15,8 @@ module.exports = () => {
 	if (!extra["count(*)"]) {
 		DB.moderation().prepare("ALTER TABLE moderation ADD COLUMN Extra VARCHAR;").run();
 	}
+	const object = DB.moderation().prepare("SELECT count(*) FROM pragma_table_info('moderation') WHERE name = 'Object';").get();
+	if (!object["count(*)"]) {
+		DB.moderation().prepare("ALTER TABLE moderation ADD COLUMN Object VARCHAR;").run();
+	}
 };

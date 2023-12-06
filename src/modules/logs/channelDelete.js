@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.ChannelDelete,
 	description: "Log deleted Channels.",
-	call: "on",
+	once: false,
 	async execute(channel) {
 		const { Application } = require("../../core/application/Application");
 		const { DevCheck } = require("../../tools/functions/devCheck");

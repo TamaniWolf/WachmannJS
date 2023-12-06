@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.GuildStickerDelete,
 	description: "Log deleted Stickers.",
-	call: "on",
+	once: false,
 	async execute(sticker) {
 		const { Application } = require("../../core/application/Application");
 		const { DevCheck } = require("../../tools/functions/devCheck");

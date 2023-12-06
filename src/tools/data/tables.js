@@ -17,7 +17,7 @@ module.exports = () => {
 		DB.config().pragma("synchronous = 1");
 		DB.config().pragma("journal_mode = wal");
 	} else if (tableConfig["count(*)"]) {
-		require("./columns/config/config")();
+		require("./column/config/config")();
 	}
 	//
 	// MODERATION
@@ -52,13 +52,13 @@ module.exports = () => {
 	const tableModeration = DB.moderation().prepare("SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'moderation';").get();
 	if (!tableModeration["count(*)"]) {
 		// If the table isn't there, create it and setup the database correctly.
-		DB.moderation().prepare("CREATE TABLE moderation (ModerationID VARCHAR PRIMARY KEY, GuildID VARCHAR, Type VARCHAR, Extra VARCHAR);").run();
+		DB.moderation().prepare("CREATE TABLE moderation (ModerationID VARCHAR PRIMARY KEY, GuildID VARCHAR, Type VARCHAR, Extra VARCHAR, Object VARCHAR);").run();
 		// Ensure that the "id" row is always unique and indexed.
 		DB.moderation().prepare("CREATE UNIQUE INDEX idx_moderation_id ON moderation (ModerationID);").run();
 		DB.moderation().pragma("synchronous = 1");
 		DB.moderation().pragma("journal_mode = wal");
 	} else if (tableModeration["count(*)"]) {
-		require("./columns/moderation/moderation")();
+		require("./column/moderation/moderation")();
 	}
 	//
 	// Get Guilds data and pass it on.

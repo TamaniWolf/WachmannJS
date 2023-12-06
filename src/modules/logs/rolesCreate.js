@@ -4,7 +4,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.GuildRoleCreate,
 	description: "Log created Roles.",
-	call: "on",
+	once: false,
 	async execute(role) {
 		const { Application } = require("../../core/application/Application");
 		const { DevCheck } = require("../../tools/functions/devCheck");

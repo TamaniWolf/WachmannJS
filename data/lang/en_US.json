@@ -436,7 +436,12 @@
     "automoderation":{
         "mainreason":"$s AutoModeration ($s)",
         "ban":{
-            "youngaccount":"Autoban Young Account's"
+            "youngaccount":"Autoban Young Account's",
+            "captchafailed":"Autoban Captcha failed"
+        },
+        "kick":{
+            "youngaccount":"Autokick Young Account's",
+            "captchafailed":"Autokick Captcha failed"
         }
     },
     "prefix": {

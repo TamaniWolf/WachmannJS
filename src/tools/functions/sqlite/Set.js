@@ -31,19 +31,19 @@ class Set {
 	// Moderation
 	static moderation(id) {
 		let data;
-		globalclient.setModeration = sql_Moderation.prepare("INSERT OR REPLACE INTO moderation (ModerationID, GuildID, Type, Extra) VALUES (@ModerationID, @GuildID, @Type, @Extra);");
+		globalclient.setModeration = sql_Moderation.prepare("INSERT OR REPLACE INTO moderation (ModerationID, GuildID, Type, Extra, Object) VALUES (@ModerationID, @GuildID, @Type, @Extra, @Object);");
 		data = globalclient.setModeration.run(id);
 		return data;
 	}
 	static moderationByType(id) {
 		let data;
-		globalclient.setModerationByType = sql_Moderation.prepare("INSERT OR REPLACE INTO moderation (ModerationID, GuildID, Type, Extra) VALUES (@ModerationID, @GuildID, @Type, @Extra);");
+		globalclient.setModerationByType = sql_Moderation.prepare("INSERT OR REPLACE INTO moderation (ModerationID, GuildID, Type, Extra, Object) VALUES (@ModerationID, @GuildID, @Type, @Extra, @Object);");
 		data = globalclient.setModerationByType.run(id);
 		return data;
 	}
 	static moderationNoSpamByType(id) {
 		let data;
-		globalclient.setModerationNoSpamByType = sql_Moderation.prepare("INSERT OR REPLACE INTO nospam (ModerationID, GuildID, Type, Extra) VALUES (@ModerationID, @GuildID, @Type, @Extra);");
+		globalclient.setModerationNoSpamByType = sql_Moderation.prepare("INSERT OR REPLACE INTO nospam (ModerationID, GuildID, Type, Extra, Object) VALUES (@ModerationID, @GuildID, @Type, @Extra, @Object);");
 		data = globalclient.setModerationNoSpamByType.run(id);
 		return data;
 	}

@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.ChannelUpdate,
 	description: "Log edited Channels.",
-	call: "on",
+	once: false,
 	async execute(oldChannel, newChannel) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel(newChannel.guild.id);

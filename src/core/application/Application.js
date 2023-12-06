@@ -49,7 +49,7 @@ class Application {
 	static database() {
 		if (existsSync("./data/sqlite/auditLog.sqlite") && existsSync("./data/sqlite/config.sqlite")
 		&& existsSync("./data/sqlite/moderation.sqlite")) {
-			require("../../tools/data/tables.js");
+			require("../../tools/data/tables.js")();
 		}
 		if (!existsSync("./data/sqlite/auditLog.sqlite") || !existsSync("./data/sqlite/config.sqlite")
 		|| !existsSync("./data/sqlite/moderation.sqlite")) {

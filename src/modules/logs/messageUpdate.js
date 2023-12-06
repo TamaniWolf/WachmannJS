@@ -4,7 +4,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.MessageUpdate,
 	description: "Log edited Messages.",
-	call: "on",
+	once: false,
 	async execute(oldMessage, newMessage) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel(newMessage.guildId);

@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.GuildBanAdd,
 	description: "Log created Bans.",
-	call: "on",
+	once: false,
 	async execute(ban) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel(ban.guild.id);

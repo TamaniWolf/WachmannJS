@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.ApplicationCommandPermissionsUpdate,
 	description: "Log edited Application Command Permissions.",
-	call: "on",
+	once: false,
 	async execute(data) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const { Application } = require("../../core/application/Application");

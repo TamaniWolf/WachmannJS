@@ -24,11 +24,11 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Environment Variable Files #
 ##############################
-.env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+*.env
+*.env.development.local
+*.env.test.local
+*.env.production.local
+*.env.local
 
 # Directorys #
 ##############
@@ -38,5 +38,5 @@ data/sqlite
 
 # Files #
 #########
-.eslintrc.json*
-.eslintrc.js*
+*.eslintrc.json*
+*.eslintrc.js*

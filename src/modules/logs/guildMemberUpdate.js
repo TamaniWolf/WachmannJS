@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.GuildMemberUpdate,
 	description: "Log edited Members.",
-	call: "on",
+	once: false,
 	async execute(oldMember, newMember) {
 		const { DateTime } = require("luxon");
 		const { DevCheck } = require("../../tools/functions/devCheck");
@@ -39,6 +39,8 @@ module.exports = {
 			const lang = require(`../../.${dataLang.Lang}`);
 			const { LanguageConvert } = require("../../tools/functions/languageConvert");
 
+			if (memberUpdateLog == null) return;
+
 			if (memberUpdateLog != null) {
 				dataAuditLogIDMember = Get.auditLogs(memberUpdateLog.id);
 			}
@@ -50,7 +52,7 @@ module.exports = {
 				// Member Update
 				const embedsMemberUpdate = new EmbedBuilder()
 					.setColor(Application.colors().logEmbedColor.update);
-				const { executor, changes, id, target } = memberUpdateLog;
+				const { executer, changes, id, target } = memberUpdateLog;
 
 				const arrayOfKey = changes.map(function(obj) {
 					return obj.key;
@@ -78,9 +80,9 @@ module.exports = {
 					dataAuditLogIDMember = { AuditLogID: `${id}`, GuildID: `${newMember.guild.id}`, Type: "Member_Update", Date: `${memberRoleUpdateLog.createdTimestamp}` };
 				}
 
-				icon2 = executor.avatarURL();
-				if (executor.avatar == null) icon2 = "https://i.imgur.com/CN6k8gB.png";
-				embedsMemberUpdate.setAuthor({ name: `${executor.tag} (ID: ${executor.id})`, iconURL: icon2 })
+				icon2 = executer.avatarURL();
+				if (executer.avatar == null) icon2 = "https://i.imgur.com/CN6k8gB.png";
+				embedsMemberUpdate.setAuthor({ name: `${executer.tag} (ID: ${executer.id})`, iconURL: icon2 })
 					.setTimestamp(new Date());
 				// eslint-disable-next-line no-undef
 				globalclient.channels.cache.get(logChannel).send({ embeds: [embedsMemberUpdate] });
@@ -90,7 +92,7 @@ module.exports = {
 				// Member Role Update
 				const embedsMemberRoleUpdate = new EmbedBuilder()
 					.setColor(Application.colors().logEmbedColor.update);
-				const { executor, changes, id, target } = memberRoleUpdateLog;
+				const { executer, changes, id, target } = memberRoleUpdateLog;
 
 				const arrayOfKey = changes.map(function(obj) {
 					return obj.key;
@@ -117,9 +119,9 @@ module.exports = {
 					embedsMemberRoleUpdate.setDescription(LanguageConvert.lang(lang.logs.removerolefrom, getRoleObj, `<@${target.id}>`));
 				}
 
-				icon2 = executor.avatarURL();
-				if (executor.avatar == null) icon2 = "https://i.imgur.com/CN6k8gB.png";
-				embedsMemberRoleUpdate.setAuthor({ name: `${executor.tag} (ID: ${executor.id})`, iconURL: icon2 })
+				icon2 = executer.avatarURL();
+				if (executer.avatar == null) icon2 = "https://i.imgur.com/CN6k8gB.png";
+				embedsMemberRoleUpdate.setAuthor({ name: `${executer.tag} (ID: ${executer.id})`, iconURL: icon2 })
 					.setTimestamp(new Date());
 				// eslint-disable-next-line no-undef
 				globalclient.channels.cache.get(logChannel).send({ embeds: [embedsMemberRoleUpdate] });

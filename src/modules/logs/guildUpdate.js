@@ -1,30 +1,31 @@
+/* eslint-disable no-unused-vars */
 const { EmbedBuilder, AuditLogEvent, Events } = require("discord.js");
 require("dotenv").config();
 module.exports = {
 	name: Events.GuildUpdate,
 	description: "Log Server Updates.",
-	call: "on",
+	once: false,
 	async execute(oldGuild, newGuild) {
-		const { Application } = require("../../core/application/Application");
-		const { DevCheck } = require("../../tools/functions/devCheck");
-		const logChannel = await DevCheck.LogChannel(newGuild.id);
-		if (logChannel === "0") return;
-		// AuditLog Fetch
-		const fetchedLogs = await newGuild.fetchAuditLogs({
-			limit: 1,
-			type: AuditLogEvent.GuildUpdate
-		});
-		const guildUpdateLog = fetchedLogs.entries.first();
-		const MiscConvert = require("../../tools/functions/miscConvert.js");
-		const { LanguageConvert } = require("../../tools/functions/languageConvert.js");
-		// Context
-		const { Get } = require("../../tools/functions/sqlite/prepare");
-		const getBotConfigID = `${newGuild.id}-${newGuild.shard.id}`;
-		let dataLang;
-		dataLang = Get.botConfig(getBotConfigID);
-		if (dataLang == null) dataLang = { Lang: "./data/lang/en_US.json" };
-		const lang = require(`../../.${dataLang.Lang}`);
-		const { executor, changes } = guildUpdateLog;
+		// const { Application } = require("../../core/application/Application");
+		// const { DevCheck } = require("../../tools/functions/devCheck");
+		// const logChannel = await DevCheck.LogChannel(newGuild.id);
+		// if (logChannel === "0") return;
+		// // AuditLog Fetch
+		// const fetchedLogs = await newGuild.fetchAuditLogs({
+		// 	limit: 1,
+		// 	type: AuditLogEvent.GuildUpdate
+		// });
+		// const guildUpdateLog = fetchedLogs.entries.first();
+		// const MiscConvert = require("../../tools/functions/miscConvert.js");
+		// const { LanguageConvert } = require("../../tools/functions/languageConvert.js");
+		// // Context
+		// const { Get } = require("../../tools/functions/sqlite/prepare");
+		// const getBotConfigID = `${newGuild.id}-${newGuild.shard.id}`;
+		// let dataLang;
+		// dataLang = Get.botConfig(getBotConfigID);
+		// if (dataLang == null) dataLang = { Lang: "./data/lang/en_US.json" };
+		// const lang = require(`../../.${dataLang.Lang}`);
+		// const { executor, changes } = guildUpdateLog;
 		// console.log(changes);
 		// console.log(oldGuild);
 		// console.log(newGuild);

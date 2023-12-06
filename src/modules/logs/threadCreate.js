@@ -5,7 +5,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.ThreadCreate,
 	description: "Log created Threads.",
-	call: "on",
+	once: false,
 	async execute(thread) {
 		const { Application } = require("../../core/application/Application.js");
 		const { DevCheck } = require("../../tools/functions/devCheck.js");

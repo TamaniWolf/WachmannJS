@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.ChannelPinsUpdate,
 	description: "Log Created/Deleted Pins.",
-	call: "on",
+	once: false,
 	async execute(channel) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel(channel.guild.id);

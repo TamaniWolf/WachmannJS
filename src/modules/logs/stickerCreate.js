@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.GuildStickerCreate,
 	description: "Log created Stickers.",
-	call: "on",
+	once: false,
 	async execute(sticker) {
 		const { Application } = require("../../core/application/Application");
 		const { DevCheck } = require("../../tools/functions/devCheck");
@@ -32,6 +32,7 @@ module.exports = {
 		if (log == null) {
 			return;
 		}
+		// eslint-disable-next-line no-unused-vars
 		const { actionType, executor, changes, target } = log;
 		let icon2 = executor.avatarURL();
 		if (executor.avatar == null) icon2 = "https://i.imgur.com/CN6k8gB.png";

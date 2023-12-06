@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.GuildStickerUpdate,
 	description: "Log edited Stickers.",
-	call: "on",
+	once: false,
 	async execute(oldSticker, newSticker) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel(newSticker.guild.id);

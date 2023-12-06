@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.GuildScheduledEventDelete,
 	description: "Log deleted Event.",
-	call: "on",
+	once: false,
 	async execute(guildScheduledEvent) {
 		const { Application } = require("../../core/application/Application");
 		const { DevCheck } = require("../../tools/functions/devCheck");

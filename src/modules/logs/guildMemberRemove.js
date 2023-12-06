@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.GuildMemberRemove,
 	description: "Log kicked/lefting Members.",
-	call: "on",
+	once: false,
 	async execute(member) {
 		const { Application } = require("../../core/application/Application");
 		const { DevCheck } = require("../../tools/functions/devCheck");

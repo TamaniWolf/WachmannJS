@@ -4,7 +4,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.GuildRoleUpdate,
 	description: "Log edited Roles.",
-	call: "on",
+	once: false,
 	async execute(oldRole, newRole) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel(newRole.guild.id);

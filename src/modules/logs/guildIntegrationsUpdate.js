@@ -4,7 +4,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.GuildIntegrationsUpdate,
 	description: "Log edited Integrations.",
-	call: "on",
+	once: false,
 	async execute(guild) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel(guild.id);

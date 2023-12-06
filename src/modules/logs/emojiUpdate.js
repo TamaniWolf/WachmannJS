@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.GuildEmojiUpdate,
 	description: "Log edited Emojis.",
-	call: "on",
+	once: false,
 	async execute(oldEmoji, newEmoji) {
 		const { DevCheck } = require("../../tools/functions/devCheck");
 		const logChannel = await DevCheck.LogChannel(newEmoji.guild.id);

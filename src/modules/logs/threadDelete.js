@@ -5,7 +5,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.ThreadDelete,
 	description: "Log deleted Threads.",
-	call: "on",
+	once: false,
 	async execute(thread) {
 		const { Application } = require("../../core/application/Application");
 		const { DevCheck } = require("../../tools/functions/devCheck");

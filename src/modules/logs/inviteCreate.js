@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.InviteCreate,
 	description: "Log created Invites.",
-	call: "on",
+	once: false,
 	async execute(invite) {
 		const { Application } = require("../../core/application/Application");
 		const { DevCheck } = require("../../tools/functions/devCheck");

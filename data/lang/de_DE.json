@@ -14,6 +14,13 @@
         "cmdcooldown":"Please wait, you are on a cooldown for `$s`. You can use it again <t:$s:R>."
     },
     "admin":{
+        "automod":{
+            "title":"AutoModerator command",
+            "helpname":"Commands",
+            "helpvalue":"`channels` - Commands relating to info.\n`  ⤷ help`   - Displays this help text.\n`  ⤷ list`   - A list of set Channels.\n`  ⤷ set`    - Set's the Channel in one of Five Category's.\n`  ⤷ remove` - Removes the Channel from it's Category's.",
+            "accountageadd":"Min. Account join Age got added.",
+            "accountagermove":"Min. Account join Age got added."
+        },
         "channel":{
             "title":"Channels command",
             "helpname":"Commands",
@@ -322,13 +329,13 @@
         "bulkdeleted2":"**Bulk Deleted:** $s Messages\n**Channel:** <#$s>",
         "bulkdeleted1":"Bulk Deleted $s Messages in <#$s>",
         "anon":"@Anon (ID: Unknown)",
-        "unknownmsgdeleted":"Uncached Message in <#$s> deleted \nIt was sent on <t:${parseInt($s / 1000)}:F>",
+        "unknownmsgdeleted":"Uncached Message in <#$s> deleted \nIt was sent on <t:$s:F>",
         "content":"Content",
         "color":"Color:",
         "fields":"***Fields:*** One or more.",
         "time":"Time:",
         "embed":"Embed:",
-        "msgdeleted":"Message from <@$s> deleted in <#$s>\nIt was sent on <t:${parseInt($s / 1000)}:F>",
+        "msgdeleted":"Message from <@$s> deleted in <#$s>\nIt was sent on <t:$s:F>",
         "invitecode":"**$s:** Invite\n**Code** https://discord.gg/$s\n**Channel:** $s",
         "language":"Language:",
         "syschannel":"Sys Channel:",
@@ -413,7 +420,9 @@
         "acpu":"$s Command <@$s>",
         "create":"Created",
         "edit":"Edited",
-        "delete":"Deleted"
+        "delete":"Deleted",
+        "archived":"Archived",
+        "locked":"Locked"
     },
     "system":{
         "birthday":{
@@ -422,6 +431,17 @@
         },
         "wordreaction":{
             "meep":"Meep!"
+        }
+    },
+    "automoderation":{
+        "mainreason":"$s AutoModeration ($s)",
+        "ban":{
+            "youngaccount":"Autoban Young Account's",
+            "captchafailed":"Autoban Captcha failed"
+        },
+        "kick":{
+            "youngaccount":"Autokick Young Account's",
+            "captchafailed":"Autokick Captcha failed"
         }
     },
     "prefix": {
@@ -453,4 +473,3 @@
         "waslivedesc":"The stream has now ended."
     }
 }
-

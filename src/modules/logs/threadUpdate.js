@@ -4,7 +4,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.ThreadUpdate,
 	description: "Log edited Threads.",
-	call: "on",
+	once: false,
 	async execute(oldThread, newThread) {
 		const { DevCheck } = require("../../tools/functions/devCheck.js");
 		const logChannel = await DevCheck.LogChannel(newThread.guild.id);

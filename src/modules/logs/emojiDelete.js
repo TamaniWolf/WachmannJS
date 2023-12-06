@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
 	name: Events.GuildEmojiDelete,
 	description: "Log deleted Emojis.",
-	call: "on",
+	once: false,
 	async execute(emoji) {
 		const { Application } = require("../../core/application/Application");
 		const { DevCheck } = require("../../tools/functions/devCheck");
