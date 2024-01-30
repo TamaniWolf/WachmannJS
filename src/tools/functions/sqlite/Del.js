@@ -28,6 +28,18 @@ class Del {
 		data = globalclient.delModeration.run(id);
 		return data;
 	}
+	static captcha(id) {
+		let data;
+		globalclient.delModerationCaptcha = sql_Moderation.prepare("DELETE FROM captcha WHERE ModerationID = ?");
+		data = globalclient.delModerationCaptcha.run(id);
+		return data;
+	}
+	static nospam(id) {
+		let data;
+		globalclient.delModerationNoSpam = sql_Moderation.prepare("DELETE FROM nospam WHERE ModerationID = ?");
+		data = globalclient.delModerationNoSpam.run(id);
+		return data;
+	}
 	// By Guild
 	// Config By Guild
 	static botConfigByGuild(id) {
@@ -56,12 +68,30 @@ class Del {
 		data = globalclient.delModerationByGuild.run(id);
 		return data;
 	}
+	static captchaByGuild(id) {
+		let data;
+		globalclient.delModerationCaptchaByGuild = sql_Moderation.prepare("DELETE FROM captcha WHERE GuildID = ?");
+		data = globalclient.delModerationCaptchaByGuild.run(id);
+		return data;
+	}
+	static noSpamByGuild(id) {
+		let data;
+		globalclient.delModerationNoSpamByGuild = sql_Moderation.prepare("DELETE FROM nospam WHERE GuildID = ?");
+		data = globalclient.delModerationNoSpamByGuild.run(id);
+		return data;
+	}
 	// By Type
 	// Moderation by Type
 	static moderationByType(id, type) {
 		let data;
 		globalclient.delModerationByType = sql_Moderation.prepare("DELETE FROM moderation WHERE ModerationID = ? AND Type = ?");
 		data = globalclient.delModerationByType.run(id, type);
+		return data;
+	}
+	static captchaByType(id, type) {
+		let data;
+		globalclient.delModerationCaptchByType = sql_Moderation.prepare("DELETE FROM captcha WHERE ModerationID = ? AND Type = ?");
+		data = globalclient.delModerationCaptchByType.run(id, type);
 		return data;
 	}
 	static moderationNoSpamByType(id, type) {

@@ -35,16 +35,16 @@ class Set {
 		data = globalclient.setModeration.run(id);
 		return data;
 	}
-	static moderationByType(id) {
+	static captcha(id) {
 		let data;
-		globalclient.setModerationByType = sql_Moderation.prepare("INSERT OR REPLACE INTO moderation (ModerationID, GuildID, Type, Extra, Object) VALUES (@ModerationID, @GuildID, @Type, @Extra, @Object);");
-		data = globalclient.setModerationByType.run(id);
+		globalclient.setModerationCaptcha = sql_Moderation.prepare("INSERT OR REPLACE INTO captcha (ModerationID, GuildID, Type, MemberID, Attempts) VALUES (@ModerationID, @GuildID, @Type, @MemberID, @Attempts);");
+		data = globalclient.setModerationCaptcha.run(id);
 		return data;
 	}
-	static moderationNoSpamByType(id) {
+	static NoSpam(id) {
 		let data;
-		globalclient.setModerationNoSpamByType = sql_Moderation.prepare("INSERT OR REPLACE INTO nospam (ModerationID, GuildID, Type, Extra, Object) VALUES (@ModerationID, @GuildID, @Type, @Extra, @Object);");
-		data = globalclient.setModerationNoSpamByType.run(id);
+		globalclient.setModerationNoSpam = sql_Moderation.prepare("INSERT OR REPLACE INTO nospam (ModerationID, GuildID, Type, Extra, Object) VALUES (@ModerationID, @GuildID, @Type, @Extra, @Object);");
+		data = globalclient.setModerationNoSpam.run(id);
 		return data;
 	}
 }

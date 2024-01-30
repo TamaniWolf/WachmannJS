@@ -437,11 +437,11 @@
         "mainreason":"$s AutoModeration ($s)",
         "ban":{
             "youngaccount":"Autoban Young Account's",
-            "captchafailed":"Autoban Captcha failed"
+            "captchafailed":"Autoban on Captcha failure"
         },
         "kick":{
             "youngaccount":"Autokick Young Account's",
-            "captchafailed":"Autokick Captcha failed"
+            "captchafailed":"Autokick on Captcha failure"
         }
     },
     "prefix": {

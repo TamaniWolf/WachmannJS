@@ -6,7 +6,8 @@ const { Get } = require("../../tools/functions/sqlite/prepare");
 require("dotenv").config;
 
 module.exports = {
-	name: Events.GuildMemberAdd,
+	name: "accountage",
+	event: Events.GuildMemberAdd,
 	description: "Check Joining Account' Age and Banning them if to young.",
 	once: false,
 	async execute(member) {

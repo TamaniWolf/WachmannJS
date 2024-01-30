@@ -18,7 +18,7 @@ module.exports = (globalclient) => {
 			if (log.once === true) globalclient.once(log.name, (...args) => log.execute(...args));
 			if (log.once === false) globalclient.on(log.name, (...args) => log.execute(...args));
 		}
-		console.log(`[${DateTime.utc().toFormat(timeFormat)}][Discord] Logs Heandler loaded`);
+		console.log(`[${DateTime.utc().toFormat(timeFormat)}][Discord] Logs Handler loaded`);
 	}
 	if (enabledModules === "") console.log(`[${DateTime.utc().toFormat(timeFormat)}][Discord] Logs Heandler Disabled`);
 };

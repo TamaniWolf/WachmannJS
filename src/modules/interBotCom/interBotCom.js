@@ -9,8 +9,8 @@ class Canni {
 			// return;
 		}
 		if (msgSplit.indexOf(`<@${process.env.WACHMANN_ID}>`) < 0) {
-			if (msgLow.indexOf("merry christmas") >= 0) messageDelay(message, xmas("canni"), 2000);
-			if (msgLow.indexOf("happy new year") >= 0) messageDelay(message, newYear("canni"), 2000);
+			// if (msgLow.indexOf("merry christmas") >= 0) messageDelay(message, xmas("canni"), 2000);
+			// if (msgLow.indexOf("happy new year") >= 0) messageDelay(message, newYear("canni"), 2000);
 			// return;
 		}
 	}

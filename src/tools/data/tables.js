@@ -32,7 +32,7 @@ module.exports = () => {
 		DB.auditLogs().pragma("synchronous = 1");
 		DB.auditLogs().pragma("journal_mode = wal");
 	} else if (tableAuditLog["count(*)"]) {
-		require("./column/auditLog/auditlog")();
+		require("./column/auditLog/auditLog")();
 	}
 	// Check if the table msgdel exists.
 	const tableMsgDel = DB.auditLogs().prepare("SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'messagedel';").get();
@@ -59,6 +59,34 @@ module.exports = () => {
 		DB.moderation().pragma("journal_mode = wal");
 	} else if (tableModeration["count(*)"]) {
 		require("./column/moderation/moderation")();
+	}
+	//
+	// Captcha
+	// Check if the table captcha exists.
+	const tableCaptcha = DB.moderation().prepare("SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'captcha';").get();
+	if (!tableCaptcha["count(*)"]) {
+		// If the table isn't there, create it and setup the database correctly.
+		DB.moderation().prepare("CREATE TABLE captcha (ModerationID VARCHAR PRIMARY KEY, GuildID VARCHAR, Type VARCHAR, MemberID VARCHAR, Attempts VARCHAR);").run();
+		// Ensure that the "id" row is always unique and indexed.
+		DB.moderation().prepare("CREATE UNIQUE INDEX idx_captcha_id ON captcha (ModerationID);").run();
+		DB.moderation().pragma("synchronous = 1");
+		DB.moderation().pragma("journal_mode = wal");
+	} else if (tableCaptcha["count(*)"]) {
+		require("./column/moderation/captcha")();
+	}
+	//
+	// NoSpam
+	// Check if the table nospam exists.
+	const tableNoSpam = DB.moderation().prepare("SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'nospam';").get();
+	if (!tableNoSpam["count(*)"]) {
+		// If the table isn't there, create it and setup the database correctly.
+		DB.moderation().prepare("CREATE TABLE nospam (ModerationID VARCHAR PRIMARY KEY, GuildID VARCHAR, Type VARCHAR, Extra VARCHAR, Object VARCHAR);").run();
+		// Ensure that the "id" row is always unique and indexed.
+		DB.moderation().prepare("CREATE UNIQUE INDEX idx_nospam_id ON nospam (ModerationID);").run();
+		DB.moderation().pragma("synchronous = 1");
+		DB.moderation().pragma("journal_mode = wal");
+	} else if (tableNoSpam["count(*)"]) {
+		require("./column/moderation/nospam")();
 	}
 	//
 	// Get Guilds data and pass it on.

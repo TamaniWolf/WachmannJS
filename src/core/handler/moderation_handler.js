@@ -6,19 +6,20 @@ const timeFormat = "LL" + "/" + "dd" + "/" + "yyyy" + "-" + "h" + ":" + "mm" + "
 module.exports = (globalclient) => {
 	const enabledModulesSplit = process.env.ENABLE_MODULES.split(/,+/);
 	const enabledModulesTrim = enabledModulesSplit.map(obj => {return obj.trim();});
-	const enabledModules = enabledModulesTrim.filter(m => m === "accountage" || m === "reactcaptcha").toString();
-	if (enabledModules !== "") {
+	const modulesEnabled = enabledModulesTrim.toString();
+	if (modulesEnabled !== "") {
 		// Filtering out .js files in to a string.
-		const logs_files = readdirSync("./src/modules/moderation").filter(file => file.endsWith(".js"));
+		const mod_files = readdirSync("./src/modules/moderation").filter(file => file.endsWith(".js"));
 		// Grabs files out of the string, one by one (for loop).
-		for (const file of logs_files) {
-			const log = require(`../../modules/moderation/${file}`);
+		for (const file of mod_files) {
+			const mod = require(`../../modules/moderation/${file}`);
 			// Calls files as an event.
-			if (log == null || log.once == null) continue;
-			if (log.once === true) globalclient.once(log.name, (...args) => log.execute(...args));
-			if (log.once === false) globalclient.on(log.name, (...args) => log.execute(...args));
+			const enabledModules = enabledModulesTrim.filter(m => m === mod.name).toString();
+			if (mod == null || mod.once == null || mod.name !== enabledModules) continue;
+			if (mod.once === true) globalclient.once(mod.event, (...args) => mod.execute(...args));
+			if (mod.once === false) globalclient.on(mod.event, (...args) => mod.execute(...args));
 		}
-		console.log(`[${DateTime.utc().toFormat(timeFormat)}][Discord] Moderation Heandler loaded`);
+		console.log(`[${DateTime.utc().toFormat(timeFormat)}][Discord] Moderation Handler loaded`);
 	}
-	if (enabledModules === "") console.log(`[${DateTime.utc().toFormat(timeFormat)}][Discord] Moderation Heandler Disabled`);
+	if (modulesEnabled === "") console.log(`[${DateTime.utc().toFormat(timeFormat)}][Discord] Moderation Handler Disabled`);
 };

@@ -41,6 +41,18 @@ class Get {
 		data = globalclient.getModeration.get(id);
 		return data;
 	}
+	static captcha(id) {
+		let data;
+		globalclient.getModerationCaptcha = sql_Moderation.prepare("SELECT * FROM captcha WHERE ModerationID = ?");
+		data = globalclient.getModerationCaptcha.get(id);
+		return data;
+	}
+	static noSpam(id) {
+		let data;
+		globalclient.getModerationNoSpam = sql_Moderation.prepare("SELECT * FROM nospam WHERE ModerationID = ?");
+		data = globalclient.getModerationNoSpam.get(id);
+		return data;
+	}
 	// By Guild
 	// Config by Guild
 	static botConfigByGuild(id) {
@@ -67,6 +79,18 @@ class Get {
 		let data;
 		globalclient.getModerationByGuild = sql_Moderation.prepare("SELECT * FROM moderation WHERE GuildID = ?");
 		data = globalclient.getModerationByGuild.get(id);
+		return data;
+	}
+	static captchaByGuild(id) {
+		let data;
+		globalclient.getModerationCaptchaByGuild = sql_Moderation.prepare("SELECT * FROM captcha WHERE GuildID = ?");
+		data = globalclient.getModerationCaptchaByGuild.get(id);
+		return data;
+	}
+	static noSpamByGuild(id) {
+		let data;
+		globalclient.getModerationNoSpamByGuild = sql_Moderation.prepare("SELECT * FROM nospam WHERE GuildID = ?");
+		data = globalclient.getModerationNoSpamByGuild.get(id);
 		return data;
 	}
 	// All
@@ -97,12 +121,30 @@ class Get {
 		data = globalclient.getAllModeration.get(id);
 		return data;
 	}
+	static allCaptcha(id) {
+		let data;
+		globalclient.getAllModerationCaptcha = sql_Moderation.prepare("SELECT * FROM captcha WHERE GuildID = ?");
+		data = globalclient.getAllModerationCaptcha.get(id);
+		return data;
+	}
+	static allNoSpam(id) {
+		let data;
+		globalclient.getAllModerationNoSpam = sql_Moderation.prepare("SELECT * FROM nospam WHERE GuildID = ?");
+		data = globalclient.getAllModerationNoSpam.get(id);
+		return data;
+	}
 	// By Type
 	// Moderation
 	static moderationByType(id, type) {
 		let data;
 		globalclient.getModerationByType = sql_Moderation.prepare("SELECT * FROM moderation WHERE ModerationID = ? AND Type = ?");
 		data = globalclient.getModerationByType.get(id, type);
+		return data;
+	}
+	static captchaByType(id, type) {
+		let data;
+		globalclient.getModerationCaptchaByType = sql_Moderation.prepare("SELECT * FROM captcha WHERE ModerationID = ? AND Type = ?");
+		data = globalclient.getModerationCaptchaByType.get(id, type);
 		return data;
 	}
 	static moderationNoSpamByType(id, type) {

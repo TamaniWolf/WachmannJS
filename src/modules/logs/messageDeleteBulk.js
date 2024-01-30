@@ -29,6 +29,7 @@ module.exports = {
 		if (dataLang == null) dataLang = { Lang: "./data/lang/en_US.json" };
 		const lang = require(`../../.${dataLang.Lang}`);
 		const { LanguageConvert } = require("../../tools/functions/languageConvert");
+		if (botLog == null) return;
 		const { executor, id, extra } = botLog;
 		// Data Null
 		let dataAuditLog;

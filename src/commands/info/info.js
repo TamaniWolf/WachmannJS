@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 // Require and set
 const Discord = require("discord.js");
@@ -7,7 +8,7 @@ const timeFormat = "LL" + "/" + "dd" + "/" + "yyyy" + "-" + "h" + ":" + "mm" + "
 require("dotenv").config();
 
 module.exports = {
-	name: "tell",
+	name: "info",
 	cooldown: 5,
 	prefix: "false",
 	async execute(message, args, prefix, commandName, globalclient) {
@@ -25,54 +26,61 @@ module.exports = {
 				if (botChannel === true) {
 					const mentionWachmann = prefix;
 					if (mentionWachmann === `<@${process.env.WACHMANN_ID}>`) {return;}
-					const tellMeAbout = `<@${process.env.WACHMANN_ID}> tell me about`;
-					// Bot
-					const botAliasis1 = message.content.startsWith(`${tellMeAbout} you`);
-					const botAliasis2 = message.content.startsWith(`${tellMeAbout} yourself`);
-					const botAliasis3 = message.content.startsWith(`${tellMeAbout} your self`);
-					const botAliasis4 = message.content.startsWith(`${tellMeAbout} <@${process.env.WACHMANN_ID}>`);
-					if (botAliasis1 || botAliasis2 || botAliasis3 || botAliasis4) {
-						const configEmbed = new EmbedBuilder()
+					// @Wachmann info help
+					// @Wachmann info wachmann
+					// @Wachmann info member <member|memberID>
+					// @Wachmann info channel <channel|channelID>
+					// @Wachmann info commands
+					// @Wachmann info
+					let error = false;
+					// help
+					if (args[0] === "help") {
+						await message.reply({ content: "**Help - Info**\n```\n@Wachmann info help\n@Wachmann info wachmann\n@Wachmann info member <member|memberID>\n@Wachmann info channel <channel|channelID>\n@Wachmann info commands\n```", ephemeral: true });
+					}
+					// Bot infos
+					if (args[0] === "wachmann") {
+						const infoBotEmbed = new EmbedBuilder()
 							.setColor("DarkGreen")
 							.setTitle("Wachmann")
 							.setThumbnail(globalclient.user.avatarURL({ dynamic: true, size: 512 }))
 							.addFields([
-								{ name: "Created:", value: "April the 5th of 2020." },
-								{ name: "Release:", value: "23w32a", inline: true },
-								{ name: "Version:", value: "2.0.0", inline: true },
+								{ name: "Created", value: "January the 4th of 2022." },
+								{ name: "Release", value: "23w49a", inline: true },
+								{ name: "Version", value: "2.6.2", inline: true },
 								// { name: '\u200B', value: '\u200B' },
-								{ name: "Prefix:", value: `ㅤ${process.env.PREFIX}`, inline: true },
+								{ name: "Prefix", value: "ㅤ@Wachmann", inline: true },
 								{ name: "ID", value: `${globalclient.user.id}`, inline: true }
 							]);
-						await message.reply({ embeds: [configEmbed] });
+						await message.reply({ embeds: [infoBotEmbed] });
 					}
-					// Member
-					if (message.content.startsWith(`${tellMeAbout} <@`) && !botAliasis4) {
-						const stringChannelId = args[2].toString();
-						const stringGetUser = stringChannelId.replace(/[/</>/@]/g, "");
-						if (stringGetUser) {
+					// Member infos
+					if (args[0] === "member") {
+						const memberTag = args[1].toString();
+						const memberID = memberTag.replace(/[/</>/@]/g, "");
+						if (memberID) {
 							const guild = message.client.guilds.cache.get(getGuildID);
-							const memberTagged = await guild.members.fetch(stringGetUser);
+							const member = await guild.members.fetch(memberID).catch(err=>{error = true;});
+							if (error === true) return;
 							const infoUserEmbed = new EmbedBuilder()
 								.setColor("DarkGreen")
-								.setTitle(`${memberTagged.user.username}`)
-								.setThumbnail(memberTagged.user.avatarURL({ dynamic: true, size: 512 }))
+								.setTitle(`${member.user.username}`)
+								.setThumbnail(member.user.avatarURL({ dynamic: true, size: 512 }))
 								.addFields([
-									{ name: "ID:", value: `${memberTagged.user.id}` },
-									{ name: "Roles:", value: `${memberTagged.roles.cache.map(r => r).join(" ").replace("@everyone", " ") || "None"}` },
-									{ name: "Joined Server:", value: `<t:${parseInt(memberTagged.joinedTimestamp / 1000)}:R>`, inline: true },
-									{ name: "Joined Discord:", value: `<t:${parseInt(memberTagged.user.createdTimestamp / 1000)}:R>`, inline: true }
+									{ name: "ID", value: `${member.user.id}` },
+									{ name: "Roles", value: `${member.roles.cache.map(r => r).join(" ").replace("@everyone", " ") || "None"}` },
+									{ name: "Member since", value: `<t:${parseInt(member.joinedTimestamp / 1000)}:R>`, inline: true },
+									{ name: "Joined Discord", value: `<t:${parseInt(member.user.createdTimestamp / 1000)}:R>`, inline: true }
 								]);
 							await message.reply({ embeds: [infoUserEmbed] });
 						}
 					}
-					// Channel
-					if (message.content.startsWith(`${tellMeAbout} <#`)) {
-						const stringChannelId = args[2].toString();
-						const stringGetChannel = stringChannelId.replace(/[/</>/#]/g, "");
-						const channelId = stringGetChannel;
+					// Channel infos
+					if (args[0] === "channel") {
+						const channelString = args[2].toString();
+						const channelID = channelString.replace(/[/</>/#]/g, "");
 						const guild = message.client.guilds.cache.get(getGuildID);
-						const channel = await guild.channels.fetch(channelId);
+						const channel = await guild.channels.fetch(channelID).catch(err=>{error = true;});
+						if (error === true) return;
 						const category = guild.channels.cache.get(channel.parentId);
 						const infoChannelEmbed = new EmbedBuilder()
 							.setColor("DarkGreen")
@@ -93,6 +101,26 @@ module.exports = {
 							{ name: "NSFW", value: `${channel.nsfw}`, inline: true }
 						]);
 						await message.reply({ embeds: [infoChannelEmbed] });
+					}
+					// Loaded Commands
+					if (args[0] === "commands") {
+						const guild = message.client.guilds.cache.get(getGuildID);
+						const commandsEnabled = process.env.ENABLE_COMMANDS.split(",");
+						const commandCollection = globalclient.commands;
+						let enabledCmd = "";
+						commandCollection.forEach(obj => {
+							const eMap = commandsEnabled.filter(string => string === obj.name);
+							enabledCmd += eMap[0] + "\n";
+						});
+						if (enabledCmd == null || enabledCmd === "") enabledCmd = "None";
+						const infoCommands = new EmbedBuilder()
+							.setColor("DarkGreen")
+							.setTitle("Commands")
+							.setThumbnail(guild.iconURL({ dynamic: true, size: 512 }))
+							.addFields([
+								{ name: "Loaded", value: `${enabledCmd}`, inline: true }
+							]);
+						await message.reply({ embeds: [infoCommands] });
 					}
 					// Error Messages
 				} else {

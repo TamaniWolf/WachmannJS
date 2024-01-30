@@ -11,4 +11,6 @@ module.exports = (guild) => {
 	Del.auditLogsByGuild(getClientGuildId);
 	Del.auditLogsMsgDelByGuild(getClientGuildId);
 	Del.moderationByGuild(getClientGuildId);
+	Del.captchaByGuild(getClientGuildId);
+	Del.noSpamByGuild(getClientGuildId);
 };

@@ -3,6 +3,7 @@
 const { ActivityType, Events } = require("discord.js");
 const { DateTime } = require("luxon");
 const timeFormat = "LL" + "/" + "dd" + "/" + "yyyy" + "-" + "h" + ":" + "mm" + ":" + "ss" + "-" + "a";
+require("dotenv").config();
 
 module.exports = {
 	name: Events.ClientReady,
@@ -26,6 +27,7 @@ module.exports = {
 		});
 		global.globalInvites = guildInvites;
 		global.globalclient = client;
+		Application.database();
 		console.log(`[${DateTime.utc().toFormat(timeFormat)}] ▪ ▪ ▪  Module Start  ▪ ▪ ▪ `);
 
 		const handlerList = ["logs_handler", "command_handler", "moderation_handler"];
@@ -36,7 +38,6 @@ module.exports = {
 		console.log(`[Time] ${DateTime.utc().toFormat(timeFormat)} [UTC]`);
 		console.log("[NodeJS] ▪ ▪ ▪ ▪ ▪  DiscordBot Ready  ▪ ▪ ▪ ▪ ▪ ");
 
-		Application.database();
 	}
 };
 /*
