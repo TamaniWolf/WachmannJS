@@ -1,38 +1,46 @@
 /* eslint-disable no-console */
-// Require and set
+// eslint-disable-next-line no-unused-vars
+const { Message } = require("discord.js");
 const { DateTime } = require("luxon");
-const timeFormat = "LL" + "/" + "dd" + "/" + "yyyy" + "-" + "h" + ":" + "mm" + ":" + "ss" + "-" + "a";
+const timeFormat = "yyyy/LL/dd-h:mm:ss.SSS-a";
 require("dotenv").config();
 
 module.exports = {
 	name: "ping",
 	cooldown: 5,
-	prefix: "false",
-	async execute(message) {
-		if (message.guild == null) { return; }
-		if (message != null || message.channel.id != null || message.guild.id != null) {
-			// Context
-			const { DevCheck } = require("../../tools/functions/devCheck");
-			const { ErrorFileReader } = require("../../tools/functions/errorReader");
-			const botMaster = await DevCheck.BotMaster(message);
-			const botMasterRole = await DevCheck.BotMasterRole(message);
-			const botChannel = await DevCheck.BotChannel(message);
-			if (botMasterRole === true || botMaster === true) {
-				if (botChannel === true) {
-					const latency = DateTime.now() - message.createdTimestamp;
-					// eslint-disable-next-line no-undef
-					const api_latence = Math.round(globalclient.ws.ping);
-					await message.reply(`pong!\n\n...Why did I do this?\n\n(🏓Latency is ${latency}ms. API Latency is ${api_latence}ms)`);
-					console.log("[" + DateTime.utc().toFormat(timeFormat) + `][Wachmann] Ping Pong!\nLatency is ${latency}ms. API Latency is ${api_latence}ms`);
-					// Error Messages
-				} else {
-					await message.reply({ content: await ErrorFileReader.read("wrongchannel", message), ephemeral: true });
-				}
-			} else {
-				await message.reply({ content: await ErrorFileReader.read("nobotdev", message), ephemeral: true });
+	prefix: "mention",
+	async execute(message, args, prefix, commandName, globalclient) {
+		if (message == null || message.guild == null || message.channel.id == null
+		|| message.guild.id == null) return console.log(`[${DateTime.utc().toFormat(timeFormat)}][ClanBot] Interaction of Command '${this.name}' returned 'null / undefined'.`);
+		// Imports
+		const { DevCheck } = require("../../tools/utils.js");
+		const { LanguageConvert } = require("../../tools/functions/languageConvert.js");
+		const botMaster = await DevCheck.forBotMaster(message.author.id);
+		const botMasterRole = await DevCheck.forBotMasterRole(message.author.id);
+		const botChannel = await DevCheck.forBotChannel(message.channel.id);
+		const lang = require(`../../../data/lang/${process.env.BOTLANG}/${process.env.BOTLANG}.json`);
+		const langError = require(`../../../data/lang/${process.env.BOTLANG}/error.json`);
+		const langPing = lang.cmd.admin.ping;
+
+		// Main Body
+		/**
+		 * @param {Message} message The Message Object
+		 * @param {Object} content The Message content as Object
+		 * @returns {Promise<void>} Message Reply
+		 */
+		async function messageReply(message, content) {
+			if (!message.guild.large) {
+				await message.reply(content);
+			} else if (message.guild.large) {
+				await message.channel.send(content);
 			}
-		} else {
-			console.log(`[${DateTime.utc().toFormat(timeFormat)}][ClanBot] Interaction of Command 'ping' returned 'null / undefined'.`);
 		}
+		if (!botMasterRole || !botMaster) return messageReply(message, { content: langError.permission.admin });
+		if (!botChannel) return messageReply(message, { content: langError.channel.wrong });
+		const latency = DateTime.now() - message.createdTimestamp;
+		// eslint-disable-next-line no-undef
+		const api_latence = Math.round(globalclient.ws.ping);
+		messageReply(message, LanguageConvert.lang(langPing.pong, latency, api_latence));
+		console.log("[" + DateTime.utc().toFormat(timeFormat) + `][Wachmann] Ping Pong!\nLatency is ${latency}ms. API Latency is ${api_latence}ms`);
 	}
 };

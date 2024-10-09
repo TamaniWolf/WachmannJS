@@ -1,0 +1,37 @@
+info
+**@Wachmann info** -
+- **wachmann**: .
+- **member <member|memberID>**: .
+- **channel <channel|channelID>**: .
+- **commands**: .
+
+commands
+**@Wachmann** -
+- **register slashcommands global**: .
+- **register slashcommands local**: .
+- **unregister slashcommands global**: .
+- **unregister slashcommands local**: .
+
+automod
+**@Wachmann automod** -
+- **accountage set time <1...255> <hours|days|months>**: .
+- **accountage set action <kick|ban>**: .
+- **accountage remove**: .
+
+captcha
+**@Wachmann captcha** -
+- **reaction set message <messageID>**: .
+- **reaction set emoji <emoji>**: .
+- **reaction set role <role>**: .
+- **reaction set failure <ban|kick>**: .
+- **reaction set attempts <amount>**: .
+- **reaction send message ```<message>``` [emojis]**: .
+- **reaction edit message ```<message>``` [emojis]**: .
+- **reaction edit emojis <emojis>**: .
+- **reaction edit attempts <amount>**: .
+- **reaction remove**: .
+
+clear
+**@Wachmann clear** -
+- **<amount>**: I'll clear out a set amount of messages.
+- **<amount> messages of @target**: I'll clear out a set amount of messages by the target.

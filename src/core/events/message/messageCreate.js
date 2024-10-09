@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-// Require.
 // eslint-disable-next-line no-unused-vars
 const { Events, Message, Collection } = require("discord.js");
-// Require dotenv as config (.env).
+const { DateTime } = require("luxon");
+const timeFormat = "LL" + "/" + "dd" + "/" + "yyyy" + "-" + "h" + ":" + "mm" + ":" + "ss" + "-" + "a";
 require("dotenv").config();
 
 module.exports = {
@@ -13,72 +13,48 @@ module.exports = {
      */
 	async execute(message) {
 
-		const canni = process.env.CANNI_ID;
-		const sani = process.env.SANI_ID;
-		const { Canni, Sani } = require("../../../modules/interBotCom/interBotCom.js");
-		if (message.author.id === canni) Canni.Response(message, canni, sani);
-		if (message.author.id === sani) Sani.Response(message, canni, sani);
+		// eslint-disable-next-line no-undef
+		const client = globalclient;
+		const { InterBotCom } = require("../../../modules/interBotCom/interBotCom.js");
+		if (process.env.ENABLE_MODULES.indexOf("interbotcom") >= 0 && InterBotCom != null) InterBotCom.Init(message);
 
 		// Check for Bot.
-		if (!message.author || message.author.bot) return;
+		if (!message.author || message.author.bot) return null;
 
-		const { Get } = require("../../../tools/functions/sqlite/prepare.js");
-		let dataLang = Get.botConfig(`${message.guild.id}-${message.guild.shardId}`);
-		if (dataLang == null) dataLang = { Lang: "./data/lang/en_US.json" };
-		const lang = require(`../../../.${dataLang.Lang}`);
+		const langError = require(`../../../../data/lang/${process.env.BOTLANG}/error.json`);
 
 		// Get Arguments and Command Name from Message.
-		let prefix;
+		let prefix = null;
 		const startsWithPrefix = message.content.startsWith(process.env.PREFIX);
 		const startsWithWachmann = message.content.startsWith(`<@${process.env.WACHMANN_ID}>`);
-		let msg;let args;
-		let msgNone;let argsNone;
-		let msgPrefix;let argsPrefix;
-		let msgWachmann;let argsWachmann;
-		if (message.guild == null) {
-			if (startsWithWachmann && !startsWithPrefix) {
-				msgWachmann = message.content.replace(`<@${process.env.WACHMANN_ID}> `, "").toLowerCase();
-				argsWachmann = msgWachmann.split(/ +/);
-				msg = msgWachmann;
-				args = argsWachmann;
-				prefix = `<@${process.env.WACHMANN_ID}> `;
-			}
-			if (!startsWithWachmann && !startsWithPrefix) {
-				msgNone = message.content.toLowerCase();
-				argsNone = msgNone.split(/ +/);
-				msg = msgNone;
-				args = argsNone;
-			}
-		} else if (startsWithPrefix && !startsWithWachmann) {
-			msgPrefix = message.content.replace(process.env.PREFIX, "").toLowerCase();
-			argsPrefix = msgPrefix.split(/ +/);
-			msg = msgPrefix;
-			args = argsPrefix;
+
+		let msg = message.content.toLowerCase();
+		let args = null;
+
+		if (startsWithPrefix) {
+			msg = msg.replace(process.env.PREFIX, "");
+			args = msg.split(/ +/);
 			prefix = process.env.PREFIX;
-		} else if (startsWithWachmann && !startsWithPrefix) {
-			msgWachmann = message.content.replace(`<@${process.env.WACHMANN_ID}> `, "").toLowerCase();
-			argsWachmann = msgWachmann.split(/ +/);
-			// eslint-disable-next-line no-unused-vars
-			msg = msgWachmann;
-			args = argsWachmann;
-			prefix = `<@${process.env.WACHMANN_ID}> `;
-		} else { return; }
+		} else if (startsWithWachmann) {
+			msg = msg.replace(`<@${process.env.WACHMANN_ID}> `, "");
+			args = msg.split(/ +/);
+			prefix = `<@${process.env.WACHMANN_ID}>`;
+		} else {
+			return null;
+		}
+
 		const cmdArgs = args;
 		const commandName = cmdArgs.shift().toLowerCase();
 		if (!commandName) {
-			return;
+			return null;
 		}
 
-		// eslint-disable-next-line no-undef
-		const { cooldowns } = globalclient;
-		// eslint-disable-next-line no-undef
-		const command = globalclient.commands.get(commandName);
-		if (command == null) return;
+		// Command Cooldown
+		const { cooldowns } = client;
+		const command = client.commands.get(commandName);
+		if (command == null) return null;
 
-		// Cooldown
-		if (!cooldowns.has(command.name)) {
-			cooldowns.set(command.name, new Collection());
-		}
+		if (!cooldowns.has(command.name)) cooldowns.set(command.name, new Collection());
 
 		const now = Date.now();
 		const timestamps = cooldowns.get(command.name);
@@ -86,42 +62,36 @@ module.exports = {
 
 		if (timestamps.has(message.author.id)) {
 			const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
-			if (now < expirationTime) return;
+			if (now < expirationTime) return null;
 		}
 
 		timestamps.set(message.author.id, now);
 		setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
 
-		// Check for Prefix and Prefix true.
-		if (command.prefix === "true") {
-			// Execute Command.
+		// Execute Command
+		if (command.prefix === "custom") {
 			try {
-				if (!startsWithWachmann && startsWithPrefix) {
-					// eslint-disable-next-line no-undef
-					command.execute(message, args, prefix, commandName, globalclient);
+				if (startsWithPrefix) {
+					command.execute(message, args, prefix, commandName, client);
 				}
 			} catch (error) {
-				// eslint-disable-next-line no-console
-				console.error(error);
-				message.channel.send({ content: lang.error.cmderror, ephemeral: true });
+				console.error(`[${DateTime.utc().toFormat(timeFormat)}][messageCreate.js]\n`, error);
+				message.channel.send({ content: langError.command.execute });
 			}
-		} else
-		// Check for Prefix and Prefix false.
-			if (command.prefix === "false") {
-				// Execute Command.
-				try {
-					if (!startsWithPrefix && startsWithWachmann) {
-						// eslint-disable-next-line no-undef
-						command.execute(message, args, prefix, commandName, globalclient);
-					} else if (message.guild == null) {
-						// eslint-disable-next-line no-undef
-						command.execute(message, args, prefix, commandName, globalclient);
-					}
-				} catch (error) {
-					// eslint-disable-next-line no-console
-					console.error(error);
-					message.channel.send({ content: lang.error.cmderror, ephemeral: true });
+		} else if (command.prefix === "mention") {
+			try {
+				if (startsWithWachmann) {
+					command.execute(message, args, prefix, commandName, client);
 				}
+			} catch (error) {
+				console.error(`[${DateTime.utc().toFormat(timeFormat)}][messageCreate.js]\n`, error);
+				message.channel.send({ content: langError.command.execute });
 			}
+		} else if (command.prefix === "slash") {
+			return null;
+		} else {
+			console.error(`[${DateTime.utc().toFormat(timeFormat)}][messageCreate.js] command.prefix is not boolean.`);
+			message.channel.send({ content: langError.command.execute });
+		}
 	}
 };

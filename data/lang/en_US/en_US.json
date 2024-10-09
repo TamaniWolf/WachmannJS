@@ -1,0 +1,320 @@
+{
+    "name": "English",
+    "code": "en_US",
+    "error": {
+        "cmderror": "There was an error trying to execute this command!",
+        "cmdcooldown": "Please wait, you are on a cooldown for `$s`. You can use it again <t:$s:R>."
+    },
+    "cmd": {
+        "admin": {
+            "help": {
+                "title": "Admin Commands And Info",
+                "cmdlist": "Commands:",
+                "cmddescription": "Description:"
+            },
+            "info": {
+                "help": "**Help - Info**\n```\n@Wachmann info help\n@Wachmann info wachmann\n@Wachmann info member <member|memberID>\n@Wachmann info channel <channel|channelID>\n@Wachmann info commands\n```",
+                "created": "Created",
+                "release": "Release",
+                "version": "Version",
+                "prefix": "Prefix",
+                "name": "Name",
+                "roles": "Roles",
+                "membersince": "Joined",
+                "joineddiscord": "Joined Discord",
+                "topic": "Topic",
+                "nsfw": "NSFW",
+                "id": "ID",
+                "none": "None",
+                "loaded": "Loaded",
+                "category": "Category"
+            },
+            "ping": {
+                "pong": "pong!\n\n...Why did I do this?\n\n(🏓Latency is $s ms. API Latency is $s ms)"
+            },
+            "sleep": {
+                "stopping": "Going to sleep.",
+                "pm2": "On PM2 and like wise mide register this as an crash and restart the bot."
+            },
+            "autoban": {
+                "help": "```\n@Wachmann autoban help\n@Wachmann autoban accounts yunger then <1...255> <hours|days|months>\n@Wachmann autoban accounts yunger then off\n```",
+                "removeaccountage": "Min. Account join Age got removed.",
+                "addaccountage": "Min. Account join Age got added.",
+                "notanumber": "Sorry but that's not working. Wrong Number argument.",
+                "notaaction": "Sorry you need to chouse ether 'kick' or 'ban'."
+            },
+            "captcha": {
+                "help": "```\n@Wachmann captcha help\n@Wachmann captcha reaction set message <messageID>\n@Wachmann captcha reaction set emoji <emoji>\n@Wachmann captcha reaction set role <role>\n@Wachmann captcha reaction set failure <ban|kick>\n@Wachmann captcha reaction send message ```<message>``` [emojis]\n@Wachmann captcha reaction edit message ```<message>``` [emojis]\n@Wachmann captcha reaction edit emojis <emojis>\n@Wachmann captcha reaction edit attempts <amount>\n@Wachmann captcha reaction off\n```",
+                "removereact": "Reaction Captcha got removed.",
+                "setcaptcha": "$s for Reaction Captcha got set.",
+                "setmessage": "Message",
+                "setemoji": "Emoji",
+                "setrole": "Role",
+                "setfailure": "Failure",
+                "setattempts": "Attempts"
+            },
+            "clear": {
+                "max": "Sorry, but I only can do 100 at a time.",
+                "message": "$s Messages from the past Two weeks got cleared.",
+                "user": "$s Messages from $s of the past Two weeks got cleared.",
+                "title": "Cleard Messages:",
+                "notanumber": "Sorry but that's not working. It must be a Nummber."
+            }
+        },
+        "dev": {
+            "deploy": {
+                "globaladd": "Successfully reloaded $s application (/) commands.",
+                "globalremove": "Successfully deleted all application (/) commands.",
+                "localadd": "Successfully reloaded $s guild (/) commands.",
+                "localremove": "Successfully deleted all guild (/) commands."
+            }
+        }
+    },
+    "modules": {
+        "calenders": {
+            "birthday": {
+                "multimemberwish": "Please wish a happy birthday to our esteemed members: $s",
+                "singlememberwish": "Please wish a happy birthday to $s"
+            },
+            "calender": {
+                "": ""
+            }
+        },
+        "logs": {
+            "all": {
+                "before": "Before",
+                "after": "After",
+                "old": "Old",
+                "new": "New",
+                "create": "Created",
+                "edit": "Edited",
+                "delete": "Deleted",
+                "none": "None",
+                "name": "Name",
+                "anon": "@Anon (ID: Unknown)",
+                "memberid": "MemberID",
+                "botid": "BotID",
+                "removed": "Removed",
+                "description": "Description",
+                "color": "Color",
+                "syschannalflag": "Sys Channel Flags",
+                "accountage": "Account age",
+                "tag": "Tag"
+            },
+            "channel": {
+                "createchannel": "Created",
+                "createthread": "Created",
+                "deletechannel": "Deleted",
+                "deletethread": "Deleted",
+                "editchannel": "Edited $s",
+                "editthread": "Edited $s",
+                "name": "Name",
+                "topic": "Topic",
+                "type": "Type",
+                "slowmode": "Slowmode",
+                "activeafter": "Archive after",
+                "editpermoverwrite": "Edited Permission Overwrites in $s",
+                "message": "Message",
+                "pin": "Pinned [Message](https://discord.com/channels/$s/$s/$s)\n by $s in <#$s>",
+                "unpin": "unpinned [Message](https://discord.com/channels/$s/$s/$s)\n by $s in <#$s>",
+                "nsfw": "NSFW",
+                "bitrate": "Bitrate",
+                "userlimit": "User Limit",
+                "permoverwrite": "Permission Overwrites: Yes",
+                "rtcregion": "RTC Region",
+                "videoquality": "Video Quality",
+                "threadslowmode": "Thread Slowmode",
+                "tags": "Tags",
+                "reactionemoji": "Reaction Emoji",
+                "sorted": "Sort Order",
+                "forumlayout": "Forum Layout",
+                "reason": "Reason",
+                "flags": "Flags",
+                "archivedthread": "Thread $s archived",
+                "unarchivedthread": "Thread $s unarchived",
+                "lockedthread": "Thread $s locked",
+                "unlockedthread": "Thread $s unlocked",
+                "resettodefault": "Resetted to Default:",
+                "invitable": "Everyone can invite to Thread $s.",
+                "uninvitable": "Creator and Mods can invite to Thread $s."
+            },
+            "event": {
+                "isnotinterested": "$s is **not interested** anymore in Event `$s`",
+                "isinterested": "$s is **interested** in Event `$s`",
+                "scheduled": "Scheduled",
+                "started": "Started",
+                "ended": "Ended",
+                "canceled": "Canceled",
+                "startus": "**Status:** $s\n",
+                "coverimage": "**Cover Image:** The $s Cover Image.\n",
+                "edit": "Edited Event `$s`",
+                "external": "External Event.",
+                "cancel": "Canceled Event `$s`",
+                "hoste": "Up to the Hoste.",
+                "create": "Created Event `$s`",
+                "title": "Title:",
+                "start": "Start:",
+                "end": "End",
+                "location": "Location:"
+            },
+            "expression": {
+                "editemoji": "Edited Name of Emoji $s",
+                "editanimatedemoji": "Edited Name of Animated Emoji $s",
+                "deleteemoji": "Deleted Emoji `:$s:`",
+                "createemoji": "Created Emoji $s",
+                "editsticker": "Edited Name of Sticker $s",
+                "editanimatedsticker": "Edited Name of Animated Sticker $s",
+                "deletesticker": "Deleted Sticker `:$s:`",
+                "createsticker": "Created Sticker $s"
+            },
+            "member": {
+                "addnickto": "Added Nickname `$s` to $s",
+                "removenickfrom": "Removed Nickname `$s` from $s",
+                "editnickof": "Edited Nickname of $s",
+                "addroleto": "Added Role $s to $s",
+                "removerolefrom": "Removed Role $s from $s",
+                "added": "Added",
+                "integrationid": "Integration (Unknown)",
+                "lefted": "<@$s> Left the server",
+                "kicked": "Kicked $s\n**Reason:** $s",
+                "inviteused": "Invite used",
+                "botadded": "Bot $s was Added to the server by $s",
+                "Joined": "<@$s> Joined the server",
+                "unban": "Unbanned $s\n",
+                "ban": "Banned <@$s> (ID: $s)\n**Reason:** $s"
+            },
+            "message": {
+                "delete": "Message from <@$s> deleted in <#$s>\nIt was sent on <t:$s:F>",
+                "deletebulk": "Bulk Deleted $s Messages in <#$s>",
+                "deleteuncached": "Uncached Message in <#$s> deleted \nIt was sent on <t:$s:F>",
+                "edit": "**Edited:** Their [Message](https://discord.com/channels/$s/$s/$s 'The Message $s Edited.')\n**Channel:** $s",
+                "uncached": "*Uncached*",
+                "content": "Content",
+                "fields": "***Fields:*** One or more.",
+                "time": "Time:",
+                "embed": "Embed:"
+            },
+            "misc": {
+                "unknownauditlog": "Recived Unknown AuditLog Entry",
+                "onboarding": {
+                    "onboardingupdate": "Changed Settings of Onboarding",
+                    "defaultchannels": "**Default Channel IDs:** Changed.\n",
+                    "id": "**ID:** $s\n",
+                    "title": "**Title:** $s\n",
+                    "options": "**Options:** Changed.\n",
+                    "singleselect": "**Single Select:** $s\n",
+                    "required": "**Required:** $s\n",
+                    "inonboarding": "**In Onboarding:** $s\n",
+                    "type": "**Type:** $s\n",
+                    "prompts": "**Prompts:** Changed.\n",
+                    "guildid": "**Guild ID:** $s.\n",
+                    "welcomemsg": "**Welcome Message:** $s\n",
+                    "newmemberactions": "**New Member Actions:** Changed.\n",
+                    "resourcechannel": "**Resource Channels:** Changed.\n",
+                    "belowrequirements": "**Below Requirements:** $s\n",
+                    "enabled": "**Enabled:** $s\n"
+                },
+                "webhook": {
+                    "createType1": "Created `$s` Webhook:\n(ID: $s)",
+                    "createType2": "Created `$s` Webhook:\n`$s` (ID: $s)\nIn Channel <#$s>",
+                    "createType3": "Created `$s` Webhook:\n(ID: $s)",
+                    "deleteType1": "Deleted `$s` Webhook:\n(ID: $s)",
+                    "deleteType2": "Deleted `$s` Webhook:\n`$s` (ID: $s)\nIn Channel <#$s>",
+                    "deleteType3": "Deleted `$s` Webhook:\n(ID: $s)",
+                    "update": "Edited Webhook:\n(ID: $s)",
+                    "channel": "Channel"
+                }
+            },
+            "role": {
+                "create": "Created Role $s (ID: $s)",
+                "createpreset": "Created Role $s (ID: $s) with presets",
+                "delete": "Deleted Role `$s` (ID: $s)",
+                "edit": "Edited Role $s",
+                "mentionable": "**Mentionable:** $s\n",
+                "display": "**Display:** $s\n",
+                "color": "**Color:** `#$s` -> `#$s`\n",
+                "name": "**Name:** `$s` -> `$s`\n",
+                "revoked": "Revoked:",
+                "granted": "Granted:"
+            },
+            "server": {
+                "invitecode": "**$s:** Invite\n**Code** https://discord.gg/$s\n**Channel:** $s",
+                "language": "Language:",
+                "syschannel": "Sys Channel:",
+                "enabled": "Enabled",
+                "disabled": "Disabled",
+                "premiumbar": "Premium Progress Bar:",
+                "allmsg": "All Messages",
+                "onlymention": "Only @mentions",
+                "defaultmsgnoti": "Default Message Notification",
+                "afkchannel": "AFK Channel",
+                "changes": "Changes",
+                "edited": "Edited",
+                "interactionced": "$s Integration `$s`",
+                "acpu": "$s Command <@$s>"
+            },
+            "voice": {
+                "join": "$s Joined $s\nTime: $s",
+                "leave": "$s Left $s\nTime: $s",
+                "switch": "$s Switched from $s to $s\nTime: $s",
+                "requesttospeak": "$s requested to speak in $s\nTime: $s",
+                "screensharing": "$s started screen sharing in $s\nTime: $s",
+                "noscreensharing": "$s stopped screen sharing in $s\nTime: $s",
+                "webcam": "$s started they Webcam in $s\nTime: $s",
+                "nowebcam": "$s stopped they Webcam in $s\nTime: $s",
+                "selfmute": "$s muted them self in $s\ntime: $s",
+                "noselfmute": "$s unmuted them self in $s\nTime: $s",
+                "selfdeaf": "$s deafend them self in $s\nTime: $s",
+                "noselfdeaf": "$s undeafend them self in $s\nTime: $s",
+                "servermute": "$s got muted in $s\nTime: $s",
+                "noservermute": "$s got unmuted in $s\nTime: $s",
+                "serverdeaf": "$s got deafend in $s\nTime: $s",
+                "noserverdeaf": "$s got undeafend in $s\nTime: $s",
+                "stageupdate": "Changed Stage Event topic in <#$s>.\nTime: <t:$s:f>",
+                "stageend": "Ended Stage Event in <#${target.channelId}>.\nTime: <t:${timestamp}:f>",
+                "stagestart": "Started Stage Event in <#${target.channelId}>.\nTime: <t:${timestamp}:f>",
+                "privacylvl": "Privacy Level:",
+                "discoverable": "Discoverable Disabled:",
+                "eventid": "Event ID:"
+            }
+        },
+        "moderation": {
+            "all": {
+                "automod": "$s AutoModeration ($s)"
+            },
+            "captcha": {
+                "banonfail": "Ban on Captcha failure",
+                "kickonfailed": "Kick on Captcha failure"
+            },
+            "nospam": {
+                "": ""
+            },
+            "accountage": {
+                "bantoyoung": "Ban to Young Account's",
+                "kicktoyoung": "Kick to Young Account's"
+            }
+        },
+        "interbotcom": {
+            "holidays": {
+                "christmans": "I'm still on duty. But Merry Christmas to all of you as well and enjoy the festive days!",
+                "newyear": "Happy New Year! The only day that I'm off duty."
+            },
+            "tocanni": {
+                "baps": "Oof! <@$s> What the hay!?",
+                "boops": "<@$s> Hey, don't boop me.\nI have important work to do."
+            },
+            "tosani": {
+                "baps": "Oof! <@$s> What the hay!?",
+                "boops": "<@$s> Hey, don't boop me.\nI have important work to do."
+            }
+        }
+    },
+    "prefix": {
+        "bot": "Wachmann",
+        "discord": "Discord",
+        "twitch": "Twitch",
+        "chat": "Chat",
+        "error": "Error"
+    }
+}
+

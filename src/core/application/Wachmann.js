@@ -12,8 +12,6 @@ const client = new Client({
 		GatewayIntentBits.GuildMembers,
 		GatewayIntentBits.GuildModeration,
 		GatewayIntentBits.GuildEmojisAndStickers,
-		GatewayIntentBits.GuildIntegrations,
-		GatewayIntentBits.GuildWebhooks,
 		GatewayIntentBits.GuildInvites,
 		GatewayIntentBits.GuildVoiceStates,
 		GatewayIntentBits.GuildPresences,
@@ -24,9 +22,7 @@ const client = new Client({
 		GatewayIntentBits.DirectMessageReactions,
 		GatewayIntentBits.DirectMessageTyping,
 		GatewayIntentBits.MessageContent,
-		GatewayIntentBits.GuildScheduledEvents,
-		GatewayIntentBits.AutoModerationConfiguration,
-		GatewayIntentBits.AutoModerationExecution
+		GatewayIntentBits.GuildScheduledEvents
 	],
 	partials: [
 		Partials.User,                  // The partial to receive uncached users.

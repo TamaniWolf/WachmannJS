@@ -1,44 +1,51 @@
 /* eslint-disable no-console */
-// Require and set
+// eslint-disable-next-line no-unused-vars
+const { Message, Interaction } = require("discord.js");
 const { DateTime } = require("luxon");
-const timeFormat = "LL" + "/" + "dd" + "/" + "yyyy" + "-" + "h" + ":" + "mm" + ":" + "ss" + "-" + "a";
+const timeFormat = "yyyy/LL/dd-h:mm:ss.SSS-a";
 require("dotenv").config();
 
 module.exports = {
 	name: "help",
 	cooldown: 5,
-	prefix: "false",
-	async execute(message) {
-		if (message != null || message.channel.id != null || message.guild.id != null) {
-			// Context
-			const { DevCheck } = require("../../tools/functions/devCheck");
-			const { TextFileReader } = require("../../tools/functions/txtReader");
-			const { ErrorFileReader } = require("../../tools/functions/errorReader");
-			const botMaster = await DevCheck.BotMaster(message);
-			const botMasterRole = await DevCheck.BotMasterRole(message);
-			const botChannel = await DevCheck.BotChannel(message);
-			if (message.guild == null || botChannel === true) {
-				const data_out = await TextFileReader.read("help", message);
-				const sleep = async (ms) => await new Promise(r => setTimeout(r, ms));
-				// eslint-disable-next-line no-undef
-				const fetch_dm_user = await globalclient.users.fetch(message.author.id);
-				if (!Array.isArray(data_out)) fetch_dm_user.send({ content: data_out });
+	prefix: "mention",
+	async execute(message, args, prefix, commandName, globalclient) {
+		// // Interaction
+		// if (message.constructor === Interaction) {
+		// 	//
+		// }
+		// // Message
+		// if (message.constructor === Message) {
+		// 	//
+		// }
 
-				if (Array.isArray(data_out)) {
-					data_out.forEach(async (item) => {
+		if (message == null) return console.log(`[${DateTime.utc().toFormat(timeFormat)}][ClanBot] Interaction of Command '${this.name}' returned 'null / undefined'.`);
+		// Imports
+		const { Utils, DevCheck, TextFileReader } = require("../../tools/utils.js");
+		const botMaster = await DevCheck.forBotMaster(message.author.id);
+		const botMasterRole = await DevCheck.forBotMasterRole(message.author.id);
+		const botChannel = await DevCheck.forBotChannel(message.channel.id);
+		const langError = require(`../../../data/lang/${process.env.BOTLANG}/error.json`);
 
-						if (item.length >= 1999) console.error("Text Paragraph too long.");
+		// Main Body
+		if (!botMasterRole || !botMaster) Utils.messageReply(message, { content: langError.permission.admin });
+		if (!botChannel) Utils.messageReply(message, { content: langError.channel.wrong });
 
-						fetch_dm_user.send({ content: item });
-						await sleep(1000);
-					});
-				}
-				// Error Messages
-			} else if (botMasterRole === true || botMaster === true) {
-				await message.reply({ content: await ErrorFileReader.read("wrongchannel", message), ephemeral: true });
-			}
-		} else {
-			console.log(`[${DateTime.utc().toFormat(timeFormat)}][ClanBot] Interaction of Command 'adminhelp' returned 'null / undefined'.`);
+		const data_out = await TextFileReader.read("file", "help", `data/lang/${process.env.BOTLANG}`);
+		const data_new = data_out.replace("%s", `<@${message.author.id}>`);
+		// const sleep = async (ms) => await new Promise(r => setTimeout(r, ms));
+		// eslint-disable-next-line no-undef
+		const fetch_dm_user = await globalclient.users.fetch(message.author.id);
+		if (!Array.isArray(data_new)) fetch_dm_user.send({ content: data_new }).catch(async () => console.info("This User is not allowing DMs."));
+
+		if (Array.isArray(data_new)) {
+			data_new.forEach(async (item) => {
+
+				if (item.length >= 1999) console.info("[help.txt] Text Paragraph too long.");
+
+				fetch_dm_user.send({ content: item }).catch(async () => console.info("This User is not allowing DMs."));
+				// await sleep(1000);
+			});
 		}
 	}
 };

@@ -1,18 +1,26 @@
 /* eslint-disable no-console */
 const path = require("node:path");
-const { existsSync } = require("node:fs");
+const { existsSync, mkdirSync } = require("node:fs");
+require("dotenv").config();
 
 class Application {
 
+	/**
+	 * @param {NodeJS.Signals|String|Number} signal The Signal Identifier
+	 * @returns {void} Stop
+	 */
 	static stop(signal) {
 		const date = new Date;
 		if (signal === "SIGINT") { console.log(`[${date.toUTCString()}]\n > ▪ ▪ ▪  SIGINT Exit 0  ▪ ▪ ▪ < `); process.exit(0); }
 		if (signal === "SIGTERM") { console.log(`[${date.toUTCString()}]\n > ▪ ▪ ▪  SIGTERM Exit 0  ▪ ▪ ▪ < `); process.exit(0); }
-		if (signal === "exit") { console.log(`[${date.toUTCString()}]\n > ▪ ▪ ▪  exit Exit 0  ▪ ▪ ▪ < `); process.exit(0); }
+		// if (!isNaN(signal)) { console.log(`[${date.toUTCString()}]\n > ▪ ▪ ▪  exit Exit 0  ▪ ▪ ▪ < `); process.exit(0); }
 		// eslint-disable-next-line no-undef
 		if (signal === "STOP") globalclient.destroy().then(console.log(`[${date.toUTCString()}]\n > ▪ ▪ ▪  Shutdown  ▪ ▪ ▪ < `));
 	}
 
+	/**
+	 * @returns {void} Init
+	 */
 	static init() {
 		// Array of Packages/Dependencies.
 		const packJSON = require("../../../config/application/config.json");
@@ -46,21 +54,29 @@ class Application {
 		}
 	}
 
+	/**
+	 * @returns {void} Database
+	 */
 	static database() {
-		if (existsSync("./data/sqlite/auditLog.sqlite") && existsSync("./data/sqlite/config.sqlite")
-		&& existsSync("./data/sqlite/moderation.sqlite")) {
-			require("../../tools/data/tables.js")();
-		}
-		if (!existsSync("./data/sqlite/auditLog.sqlite") || !existsSync("./data/sqlite/config.sqlite")
-		|| !existsSync("./data/sqlite/moderation.sqlite")) {
-			require("../../tools/data/start.js")();
-		}
+		if (!existsSync("./data/sqlite")) mkdirSync("./data/sqlite");
+		require("../../tools/data/tables.js")();
 	}
 
+	/**
+	 * @returns {void} Start
+	 */
 	static start() {
-		require("./Wachmann.js");
+		if (process.env.SHARDING === "true") {
+			require("./Shard.js");
+		}
+		if (process.env.SHARDING === "false") {
+			require("./Wachmann.js");
+		}
 	}
 
+	/**
+	 * @returns {Object} Embed colors
+	 */
 	static colors() {
 		const colors = {
 			logEmbedColor: {
@@ -69,7 +85,8 @@ class Application {
 				create: "Green",
 				update: "Yellow",
 				delete: "Red",
-				guildupdate: "Orange"
+				guildupdate: "Orange",
+				messagedelete: "Yellow"
 			}
 		};
 		return colors;

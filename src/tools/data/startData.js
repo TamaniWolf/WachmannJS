@@ -3,9 +3,13 @@
 require("dotenv").config();
 
 class SQLiteTableData {
+	/**
+	 * @param {Object} guild The Guild Object
+	 * @returns {void} Database table data
+	 */
 	static data(guild) {
 		// SQLite
-		const { Get, Set } = require("../functions/sqlite/prepare");
+		const { Get, Set } = require("../db.js");
 		// Get/Set
 		if (globalclient) {
 			const getClientGuildId = guild.id;
@@ -16,10 +20,10 @@ class SQLiteTableData {
 			// CONFIG
 			// Config
 			let dataConfig;
-			dataConfig = Get.botConfig(getBotConfigId);
+			dataConfig = Get.configByID("discord_bot", getBotConfigId);
 			if (dataConfig == null) {
-				dataConfig = { ConfigID: `${getBotConfigId}`, GuildID: `${getClientGuildId}`, ShardID: `${getClientShardId}`, BotID: `${getClientUserId}`, Lang: "./data/lang/en_US.json" };
-				Set.botConfig(dataConfig);
+				dataConfig = { ConfigID: `${getBotConfigId}`, GuildID: `${getClientGuildId}`, ShardID: `${getClientShardId}`, BotID: `${getClientUserId}`, Lang: "en_US" };
+				Set.configByData("discord_bot", dataConfig);
 			}
 		}
 	}

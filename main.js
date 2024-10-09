@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-const { Application } = require("./src/core/application/Application.js");
+const { Application } = require("./src/tools/core.js");
 
 // Application Start
 Application.init();
@@ -8,7 +8,7 @@ Application.start();
 // Application stop
 process.on("SIGINT", (signal) => Application.stop(signal));
 process.on("SIGTERM", (signal) => Application.stop(signal));
-process.on("exit", (signal) => Application.stop(signal));
+// process.on("exit", (signal) => Application.stop(signal));
 
 // Error listener
 process.on("shardError", (err) => {
@@ -22,4 +22,4 @@ process.on("uncaughtException", (err, errs) => {
 	console.error(`[ERROR] Uncaught errors: \n${errs.stack}`);
 	// process.exit(1) //mandatory (as per the Node.js docs)
 });
-// //--------END--------//
+// --------END-------- //

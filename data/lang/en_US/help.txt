@@ -1,0 +1,15 @@
+Hey %s! You just requested my help! Here is what I can do for you.
+If you need more, I'll try to get a respons to you.
+
+These are things you can ask me to do for you:
+**@Wachmann help**: Send this help message in your DM's.
+**@Wachmann ping**: Check how slow my connection to Discord is.
+**@Wachmann clear <amount>**: I'll clear out a set amount of messages.
+**@Wachmann clear <amount> messages of @target**: I'll clear out a set amount of messages by the target.
+**@Wachmann sleep**: Sends me sleeping.
+**@Wachmann automod help**: Send a help message for the command `automod` in your DM's.
+**@Wachmann captcha help**: Send a help message for the command `captcha` in your DM's.
+**@Wachmann clear help**: Send a help message for the command `clear` in your DM's.
+**@Wachmann info help**: Send a help message for the command `info` in your DM's.
+
+So that's it! If you've any more questions about me, you should probably ask one of my creators.

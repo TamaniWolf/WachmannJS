@@ -1,8 +1,6 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 const { Events } = require("discord.js");
-const { DateTime } = require("luxon");
-const { LanguageConvert } = require("../../tools/functions/languageConvert");
-const { Get } = require("../../tools/functions/sqlite/prepare");
 require("dotenv").config;
 
 module.exports = {
@@ -11,20 +9,24 @@ module.exports = {
 	description: "Auto Timeout spamers.",
 	once: false,
 	async execute(message) {
-		const enabledModulesSplit = process.env.ENABLE_MODULES.split(/,+/);
-		const enabledModulesTrim = enabledModulesSplit.map(obj => {return obj.trim();});
-		const enabledModules = enabledModulesTrim.filter(m => m === "nospam").toString();
-		if (enabledModules !== "") {
-			// eslint-disable-next-line no-undef
-			const guild = await globalclient.guilds.fetch(message.guild.id);
-			const getBotConfigID = `${guild.id}-${guild.shard.id}`;
-			const getModerationID = `${getBotConfigID}-NoSpam`;
-			let dataLang = Get.botConfig(getBotConfigID);
-			const dataAutoMod = Get.moderationByType(getModerationID, "NoSpam");
-			if (dataLang == null) dataLang = { Lang: "./data/lang/en_US.json" };
-			if (dataAutoMod == null) return;
-			const lang = require(`../../.${dataLang.Lang}`);
-			const arrayExtra = dataAutoMod.Extra.split("-");
-		}
+		// Imports
+		const { DateTime } = require("luxon");
+		const { Get } = require("../../tools/db.js");
+		const { LanguageConvert } = require("../../tools/utils.js");
+		// Language
+		const lang = require(`../../../data/lang/${process.env.BOTLANG}/${process.env.BOTLANG}.json`);
+		const langModeration = lang.modules.moderation;
+		const langNospam = langModeration.nospam;
+
+		// Main Body
+		// eslint-disable-next-line no-undef
+		const guild = await globalclient.guilds.fetch(message.guild.id);
+		const getBotConfigID = `${guild.id}-${guild.shard.id}`;
+		const getModerationID = `${getBotConfigID}-NoSpam`;
+		const dataAutoMod = Get.moderationByIDAndType("nospam", getModerationID, "NoSpam");
+		if (dataAutoMod == null) return;
+		const arrayExtra = dataAutoMod.Extra.split("-");
+		// const  = arrayExtra[0];
+		// const  = arrayExtra[1];
 	}
 };

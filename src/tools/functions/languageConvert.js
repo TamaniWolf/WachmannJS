@@ -2,6 +2,12 @@
 require("dotenv").config;
 
 class LanguageConvert {
+	/**
+	 * Convert the Language code to the Language Name.
+	 *
+	 * @param {String} code The Language Code
+	 * @returns {Promise<String>} The Language Name
+	 */
 	static code(code) {
 		return new Promise((resolve, reject) => {
 			try {
@@ -47,38 +53,20 @@ class LanguageConvert {
 		});
 	}
 
-	// eslint-disable-next-line max-len
-	static lang(text, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19, value20) {
-		// return new Promise((resolve, reject) => {
-		// try {
+	/**
+	 * Convert $s to the provided values.
+	 *
+	 * @param {String} text The translated text
+	 * @param {Array} values The values to convert $s with
+	 * @returns {String} The Converted text
+	 */
+	static lang(text, ...values) {
 		let lang = text;
-		lang = lang.replace("$s", `${value1}`);
-		lang = lang.replace("$s", `${value2}`);
-		lang = lang.replace("$s", `${value3}`);
-		lang = lang.replace("$s", `${value4}`);
-		lang = lang.replace("$s", `${value5}`);
-		lang = lang.replace("$s", `${value6}`);
-		lang = lang.replace("$s", `${value7}`);
-		lang = lang.replace("$s", `${value8}`);
-		lang = lang.replace("$s", `${value9}`);
-		lang = lang.replace("$s", `${value10}`);
-		lang = lang.replace("$s", `${value11}`);
-		lang = lang.replace("$s", `${value12}`);
-		lang = lang.replace("$s", `${value13}`);
-		lang = lang.replace("$s", `${value14}`);
-		lang = lang.replace("$s", `${value15}`);
-		lang = lang.replace("$s", `${value16}`);
-		lang = lang.replace("$s", `${value17}`);
-		lang = lang.replace("$s", `${value18}`);
-		lang = lang.replace("$s", `${value19}`);
-		lang = lang.replace("$s", `${value20}`);
+		values.forEach(value => {
+			lang = lang.replace("$s", `${value}`);
+		});
 		const language = lang;
 		return language;
-		// resolve(lang || "");
-		// 	} catch (err) {
-		// 		reject(err);
-		// 	}
-		// });
 	}
 }
 

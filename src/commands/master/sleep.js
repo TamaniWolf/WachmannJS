@@ -1,37 +1,43 @@
-// Require and set
+/* eslint-disable no-console */
+// eslint-disable-next-line no-unused-vars
+const { Message } = require("discord.js");
 const { DateTime } = require("luxon");
-const timeFormat = "LL" + "/" + "dd" + "/" + "yyyy" + "-" + "h" + ":" + "mm" + ":" + "ss" + "-" + "a";
+const timeFormat = "yyyy/LL/dd-h:mm:ss.SSS-a";
 require("dotenv").config();
 
 module.exports = {
 	name: "sleep",
 	cooldown: 5,
-	prefix: "false",
+	prefix: "mention",
 	async execute(message, args, prefix, commandName, globalclient) {
-		if (message.guild == null) { return; }
-		if (message != null || message.channel.id != null) {
-			// Context
-			const { DevCheck } = require("../../tools/functions/devCheck");
-			const { ErrorFileReader } = require("../../tools/functions/errorReader");
-			const botMaster = await DevCheck.BotMaster(message);
-			const botMasterRole = await DevCheck.BotMasterRole(message);
-			const botChannel = await DevCheck.BotChannel(message);
-			if (botMasterRole === true || botMaster === true) {
-				if (botChannel === true) {
-					// eslint-disable-next-line no-console
-					console.log(`[${DateTime.utc().toFormat(timeFormat)}] Shutting down.`);
-					await message.reply("Going to sleep.");
-					globalclient.destroy();
-					// Error Messages
-				} else {
-					await message.reply({ content: await ErrorFileReader.read("wrongchannel", message), ephemeral: true });
-				}
-			} else {
-				await message.reply({ content: await ErrorFileReader.read("nobotdev", message), ephemeral: true });
+		if (message == null || message.guild == null
+		|| message.channel.id == null) return console.log(`[${DateTime.utc().toFormat(timeFormat)}][ClanBot] Interaction of Command '${this.name}' returned 'null / undefined'.`);
+		// Context
+		const { DevCheck } = require("../../tools/utils.js");
+		const botMaster = await DevCheck.forBotMaster(message.author.id);
+		const botMasterRole = await DevCheck.forBotMasterRole(message.author.id);
+		const botChannel = await DevCheck.forBotChannel(message.channel.id);
+		const lang = require(`../../../data/lang/${process.env.BOTLANG}/${process.env.BOTLANG}.json`);
+		const langError = require(`../../../data/lang/${process.env.BOTLANG}/error.json`);
+		const langSleep = lang.cmd.admin.sleep;
+
+		// Main body
+		/**
+		 * @param {Message} message The Message Object
+		 * @param {Object} content The Message content as Object
+		 * @returns {Promise<void>} Message Reply
+		 */
+		async function messageReply(message, content) {
+			if (!message.guild.large) {
+				await message.reply(content);
+			} else if (message.guild.large) {
+				await message.channel.send(content);
 			}
-		} else {
-			// eslint-disable-next-line no-console
-			console.log(`[${DateTime.utc().toFormat(timeFormat)}][ClanBot] Interaction of Command 'kill' returned 'null / undefined'.`);
 		}
+		if (!botMasterRole || !botMaster) messageReply(message, { content: langError.permission.admin });
+		if (!botChannel) messageReply(message, { content: langError.channel.wrong });
+		console.log(`[${DateTime.utc().toFormat(timeFormat)}] Shutting down.`);
+		messageReply(message, langSleep.stopping);
+		globalclient.destroy();
 	}
 };

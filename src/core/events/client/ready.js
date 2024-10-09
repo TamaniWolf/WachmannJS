@@ -9,7 +9,7 @@ module.exports = {
 	name: Events.ClientReady,
 	once: true,
 	async execute(client) {
-		const { Application } = require("../../application/Application.js");
+		const { Application } = require("../../../tools/core.js");
 		// Set Client (Bot) Activity.
 		client.user.setActivity("the PEF Office", { type: ActivityType.Watching });
 		console.log(`[${DateTime.utc().toFormat(timeFormat)}][Discord] logged in as ${client.user.tag}.`);

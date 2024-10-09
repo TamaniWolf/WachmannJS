@@ -5,11 +5,11 @@ const timeFormat = "LL" + "/" + "dd" + "/" + "yyyy" + "-" + "h" + ":" + "mm" + "
 
 module.exports = (globalclient) => {
 	const enabledModulesSplit = process.env.ENABLE_MODULES.split(/,+/);
-	const enabledModulesTrim = enabledModulesSplit.map(obj => {return obj.trim();});
+	const enabledModulesTrim = enabledModulesSplit.map(obj => { return obj.trim(); });
 	const modulesEnabled = enabledModulesTrim.toString();
 	if (modulesEnabled !== "") {
 		// Filtering out .js files in to a string.
-		const mod_files = readdirSync("./src/modules/moderation").filter(file => file.endsWith(".js"));
+		const mod_files = readdirSync("./src/modules/moderation").filter(files => files.endsWith(".js") && !files.startsWith("#"));
 		// Grabs files out of the string, one by one (for loop).
 		for (const file of mod_files) {
 			const mod = require(`../../modules/moderation/${file}`);
